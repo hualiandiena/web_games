@@ -15,9 +15,13 @@ module.exports = {
 		]
 	},
 	output: {
-		filename: "[name].[chunkhash:8].js",
+		path: paths.appBuild,
+		filename: "static/js/bundle.js",
 		publicPath: "/"
 	},
+	resolve: {
+		extension: [".js", ".json", ""]
+	}
 	module: {
 		rules: [
 			{
@@ -52,9 +56,42 @@ module.exports = {
 			{
 				test: /\.css$/,
 				use: [
-
+					{
+						loader: "style-loader"
+					},
+					{
+						loader: "css-loader",
+						importLoaders: 1
+					},
+					{
+						loader: "postcss-loader"
+					}
 				]
+			},
+			{
+				test: /\.json$/,
+				use: ["json-loader"]
+			},
+			{
+				test: /\.(gif|svg|otf|ttf|eot|woff(2)?)(\?.*)?$/,
+				use: ["file-loader"]
 			}
 		]
-	}
+	},
+	plugins: [
+		new HtmlWebpackPlugin({
+			inject: true
+		}),
+		new webpack.LoaderOptionsPlugin({
+			options: {
+				postcss: [
+					autoprefixer
+				]
+			}
+		}),
+		new webpack.HotModuleReplacementPlugin(),
+		new webpack.definePlugin({
+			__DEV__: env === "development"
+		})
+	]
 }
