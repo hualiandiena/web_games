@@ -15,6 +15,46 @@ module.exports = {
 		]
 	},
 	output: {
-		filename: "[name].[chunkhash:8].js"
+		filename: "[name].[chunkhash:8].js",
+		publicPath: "/"
+	},
+	module: {
+		rules: [
+			{
+				test: /\.js$/,
+				enforce: "pre",
+				include: paths.appSrc,
+				use: ["eslint-loader"]
+			},
+			{
+				exclude: [
+					/\.html$/,
+					/\.js$/,
+					/\.css$/,
+					/\.json$/,
+					/\.(gif|svg|otf|ttf|eot|woff(2)?)(\?.*)?$/
+				],
+				use: [
+					{
+						loader: "url-loader",
+						options: {
+							limit: 10000,
+							name: "static/media/[name].[hash:8].[ext]"
+						}
+					}
+				]
+			},
+			{
+				test: /\.js$/,
+				include: paths.appSrc,
+				use: ["babel-loader"]
+			},
+			{
+				test: /\.css$/,
+				use: [
+
+				]
+			}
+		]
 	}
 }
