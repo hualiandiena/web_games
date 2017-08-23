@@ -1,29 +1,30 @@
 process.env.NODE_ENV = "development";
 
 var webpack = require("webpack");
-var devServer = require("webpack-dev-server");
+var WebpackDevServer = require("webpack-dev-server");
 var chalk = require("chalk");
 var fs = require("fs");
 
-var config = require("./config/webpack.config.dev.js");
+var webpackConfig = require("./config/webpack.config.dev.js");
 var paths = require("./config/paths.js");
 
-var compiler = webpack(config);
-var server = devServer(compiler, {
+const compiler = webpack(webpackConfig);
+const devServer = new WebpackDevServer(compiler, {
 	contentBase: paths.appPublic,
 	hot: true,
+	publicPath: webpackConfig.output.publicPath,
 	clientLogLevel: "none",
-	historyApiFallback: true,
+	quiet: true,
 	open: true,
 	openPage: "/index",
-	publicPath: config.output.publicPath,
-	queit: true,
+	historyApiFallback: true,
 	watchOptions: {
 		ignored: /node_modules/
 	}
 });
 
-server.use("/data/:json", (req, res) => {
+devServer.use("/data/:json", (req, res) => {
+	console.log(req.params.json);
 	fs.readFile(paths.appDataJson + "/" + req.params.json + ".json", "utf-8", (err, data) => {
 		if (err) {
 			console.log(chalk.red(err));
@@ -33,7 +34,7 @@ server.use("/data/:json", (req, res) => {
 	});
 });
 
-server.listen(3001, (err, result) => {
+devServer.listen(3002, "127.0.0.1", (err, result) => {
 	if (err) {
 		console.log(chalk.red(err));
 	}

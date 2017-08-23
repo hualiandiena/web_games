@@ -20,8 +20,8 @@ module.exports = {
 		publicPath: "/"
 	},
 	resolve: {
-		extension: [".js", ".json", ""]
-	}
+		extensions: [".js", ".json", ".jsx"]
+	},
 	module: {
 		rules: [
 			{
@@ -31,24 +31,6 @@ module.exports = {
 				use: ["eslint-loader"]
 			},
 			{
-				exclude: [
-					/\.html$/,
-					/\.js$/,
-					/\.css$/,
-					/\.json$/,
-					/\.(gif|svg|otf|ttf|eot|woff(2)?)(\?.*)?$/
-				],
-				use: [
-					{
-						loader: "url-loader",
-						options: {
-							limit: 10000,
-							name: "static/media/[name].[hash:8].[ext]"
-						}
-					}
-				]
-			},
-			{
 				test: /\.js$/,
 				include: paths.appSrc,
 				use: ["babel-loader"]
@@ -56,16 +38,14 @@ module.exports = {
 			{
 				test: /\.css$/,
 				use: [
-					{
-						loader: "style-loader"
-					},
+					"style-loader",
 					{
 						loader: "css-loader",
-						importLoaders: 1
+						options: {
+							importLoaders: 1
+						}
 					},
-					{
-						loader: "postcss-loader"
-					}
+					"postcss-loader"
 				]
 			},
 			{
@@ -89,8 +69,8 @@ module.exports = {
 				]
 			}
 		}),
-		new webpack.HotModuleReplacementPlugin(),
-		new webpack.definePlugin({
+		// new webpack.HotModuleReplacementPlugin(),
+		new webpack.DefinePlugin({
 			__DEV__: env === "development"
 		})
 	]
