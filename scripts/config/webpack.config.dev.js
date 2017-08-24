@@ -30,9 +30,32 @@ module.exports = {
 				use: ["eslint-loader"]
 			},
 			{
+				test: /\.(bmp|(jpe?g)|png)$/,
+				include: paths.appSrc,
+				use: [
+					{
+						loader: "url-loader",
+						options: {
+							limit: 10000,
+							name: "static/media/[name].[hash:8].[ext]"
+						}
+					}
+				]
+			},
+			{
 				test: /\.js$/,
 				include: paths.appSrc,
-				use: ["babel-loader"]
+				use: [
+					{
+						loader:"babel-loader",
+						options: {
+							// his is a feature of `babel-loader` for webpack (not Babel itself)
+							// It enables caching results in ./node_modules/.cache/babel-loader/
+              				// directory for faster rebuilds
+							cacheDirectory: true,
+						}
+					}
+				]
 			},
 			{
 				test: /\.css$/,
@@ -68,7 +91,15 @@ module.exports = {
 		new webpack.LoaderOptionsPlugin({
 			options: {
 				postcss: [
-					autoprefixer
+					autoprefixer({
+                    	browsers: [
+                        	'>1%',
+                        	'last 4 versions',
+                        	'Firefox ESR',
+                        	'not ie < 9', // React doesn't support IE8 anyway
+                      	],
+                    	flexbox: 'no-2009',
+                    })
 				]
 			}
 		}),

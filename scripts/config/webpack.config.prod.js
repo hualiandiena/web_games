@@ -2,6 +2,7 @@ var autoprefixer = require("autoprefixer");
 var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
+var MainfestPlugin = require("webpack-manifest-plugin");
 
 var paths = require("./paths");
 
@@ -30,22 +31,56 @@ module.exports = {
 				use: ["eslint-loader"]
 			},
 			{
+				test: /\.(bmp|(jpe?g)|png)$/,
+				include: paths.appSrc,
+				use: [
+					{
+						loader: "url-loader",
+						options: {
+							limit: 10000,
+							name: "static/media/[name].[hash:8].[ext]"
+						}
+					}
+				]
+			},
+			{
 				test: /\.js$/,
 				include: paths.appSrc,
 				use: ["babel-loader"]
 			},
 			{
 				test: /\.css$/,
-				use: [
-					"style-loader",
-					{
-						loader: "css-loader",
-						options: {
-							importLoaders: 1
+				loader: ExtractTextPlugin.extract({
+					fallback: "style-loader",
+					use: [
+						{
+							loader: "css-loader",
+							options: {
+								importLoaders: 1,
+								minimize: true,
+								sourceMap: true
+							}
+						},
+						{
+							loader: "postcss-loader",
+							options: {
+								ident: "postcss",
+								plugins: () => {
+									require("postcss-flexbugs-fiexs"),
+									autoprefixer({
+			                            browsers: [
+			                            	'>1%',
+			                            	'last 4 versions',
+			                            	'Firefox ESR',
+			                            	'not ie < 9', // React doesn't support IE8 anyway
+			                            ],
+			                            flexbox: 'no-2009',
+			                        })
+								}
+							}
 						}
-					},
-					"postcss-loader"
-				]
+					]
+				})
 			},
 			{
 				test: /\.json$/,
@@ -95,6 +130,10 @@ module.exports = {
 				url: "inline"
 			},
 			ie8: false
+		}),
+		new ExtractTextPlugin("styles.css"),
+		new MainfestPlugin({
+			fileName: "asset-manifest.json"
 		})
 	]
 };
