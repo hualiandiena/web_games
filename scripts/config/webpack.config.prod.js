@@ -30,24 +30,6 @@ module.exports = {
 				use: ["eslint-loader"]
 			},
 			{
-				exclude: [
-					/\.html$/,
-					/\.js$/,
-					/\.css$/,
-					/\.json$/,
-					/\.(gif|svg|otf|ttf|eot|woff(2)?)(\?.*)?$/
-				],
-				use: [
-					{
-						loader: "url-loader",
-						options: {
-							limit: 10000,
-							name: "static/media/[name].[hash:8].[ext]"
-						}
-					}
-				]
-			},
-			{
 				test: /\.js$/,
 				include: paths.appSrc,
 				use: ["babel-loader"]
@@ -55,16 +37,14 @@ module.exports = {
 			{
 				test: /\.css$/,
 				use: [
-					{
-						loader: "style-loader"
-					},
+					"style-loader",
 					{
 						loader: "css-loader",
-						importLoaders: 1
+						options: {
+							importLoaders: 1
+						}
 					},
-					{
-						loader: "postcss-loader"
-					}
+					"postcss-loader"
 				]
 			},
 			{
@@ -92,11 +72,11 @@ module.exports = {
 				minifyURLs: true
 			}
 		}),
-		new webpack.definePlugin({
+		new webpack.DefinePlugin({
 			__DEV__: env === "development",
 			"process.env.NODE_ENV": JSON.stringify("production")
 		}),
-		new webpack.hashedModuleIdsPlugin(),
+		new webpack.HashedModuleIdsPlugin(),
 		// new webpack.optimize.CommonsChunkPlugin({
 		// 	name: "vendor"
 		// }),

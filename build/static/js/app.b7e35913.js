@@ -1,0 +1,2 @@
+webpackJsonp([0],{"T+eD":function(e,n,t){"use strict";console.log(13),e.exports={name:"hi",addr:"local"}},lVK7:function(e,n,t){"use strict";var o=t("T+eD"),l=function(e){return e&&e.__esModule?e:{default:e}}(o);document.getElementById("root").innerHTML=l.default.name}},["lVK7"]);
+//# sourceMappingURL=app.b7e35913.js.map

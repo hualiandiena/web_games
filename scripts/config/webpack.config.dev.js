@@ -8,19 +8,18 @@ var env = process.env.NODE_ENV.trim();
 
 module.exports = {
 	devtool: "cheap-module-source-map",
-	entry: {
-		app: [
-			paths.appIndexJs,
-			"webpack-dev-server/client?http://localhost:3001"
-		]
-	},
+	entry: [
+		paths.appIndexJs,
+		"webpack-dev-server/client/index.js?http://localhost:3001/",
+		"webpack/hot/dev-server"
+	],
 	output: {
 		path: paths.appBuild,
 		filename: "static/js/bundle.js",
 		publicPath: "/"
 	},
 	resolve: {
-		extensions: [".js", ".json", ".jsx"]
+		extensions: [".js", ".json"]
 	},
 	module: {
 		rules: [
@@ -60,7 +59,11 @@ module.exports = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			inject: true
+			inject: true,
+			template: paths.appHtml
+		}),
+		new webpack.DefinePlugin({
+			__DEV__: env === "development"
 		}),
 		new webpack.LoaderOptionsPlugin({
 			options: {
@@ -69,9 +72,6 @@ module.exports = {
 				]
 			}
 		}),
-		// new webpack.HotModuleReplacementPlugin(),
-		new webpack.DefinePlugin({
-			__DEV__: env === "development"
-		})
+		new webpack.HotModuleReplacementPlugin()
 	]
 }
