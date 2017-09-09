@@ -1,4 +1,5 @@
-import name from "./components/test";
+// import name from "./components/carouse.js";
 
-var div = document.getElementById("root");
-div.innerHTML = name.name;
+import png from "./resource/imgs/timg.jpg";
+
+var rootEle = document.getElementById()
