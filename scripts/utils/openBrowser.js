@@ -17,7 +17,7 @@ function openBrowser(url) {
 	try {
 		opn(url).catch(() => {});
 		return true;
-	} catch (true) {
+	} catch (err) {
 		return false;
 	}
 }

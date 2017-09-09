@@ -10,7 +10,7 @@ module.exports = {
 	devtool: "cheap-module-source-map",
 	entry: [
 		paths.appIndexJs,
-		"webpack-dev-server/client/index.js?http://localhost:3001/",
+		"webpack-dev-server/client/index.js?http://localhost:3002/",
 		"webpack/hot/dev-server"
 	],
 	output: {
