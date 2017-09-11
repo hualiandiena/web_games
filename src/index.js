@@ -1,5 +1,3 @@
-// import name from "./components/carouse.js";
+import Carouse from "./components/Carouse.js";
 
-import png from "./resource/imgs/timg.jpg";
-
-var rootEle = document.getElementById()
+var rootEle = document.getElementById("root");
