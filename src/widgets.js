@@ -55,12 +55,20 @@ var Widget = {
                         ele.appendChild(node);
                     });
                 }
+                this.widgetDidMount(nodes[0]);
             }
-            
         }
     },
     render: function() {
         return "";
+    },
+    widgetDidMount: function() {
+
+    },
+    setState: function(state) {
+        if (typeof state === "object") {
+            
+        }
     }
 };
 

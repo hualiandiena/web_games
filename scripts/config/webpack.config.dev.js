@@ -19,6 +19,7 @@ module.exports = {
 		publicPath: "/"
 	},
 	resolve: {
+		modules: ["node_modules", paths.appNodeModules],
 		extensions: [".js", ".json"]
 	},
 	module: {
@@ -67,7 +68,22 @@ module.exports = {
 							importLoaders: 1
 						}
 					},
-					"postcss-loader"
+					{
+						loader: "postcss-loader",
+						options: {
+							ident: "postcss",
+							plugins: () => {
+								autoprefixer({
+		                            browsers: [
+		                            	'>1%',
+		                            	'last 4 versions',
+		                            	'Firefox ESR',
+		                            	'not ie < 9', // React doesn't support IE8 anyway
+		                            ]
+		                        })
+							}
+						}
+					}
 				]
 			},
 			{
@@ -87,21 +103,6 @@ module.exports = {
 		}),
 		new webpack.DefinePlugin({
 			__DEV__: env === "development"
-		}),
-		new webpack.LoaderOptionsPlugin({
-			options: {
-				postcss: [
-					autoprefixer({
-                    	browsers: [
-                        	'>1%',
-                        	'last 4 versions',
-                        	'Firefox ESR',
-                        	'not ie < 9', // React doesn't support IE8 anyway
-                      	],
-                    	flexbox: 'no-2009',
-                    })
-				]
-			}
 		}),
 		new webpack.HotModuleReplacementPlugin()
 	]
