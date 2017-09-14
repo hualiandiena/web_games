@@ -4,7 +4,9 @@ import "./Carouse.css";
 
 function PicItem(props) {
     var { className = "", src = "" } = props;
-    return '<li class="carouse-item ' + className + '" ><img src="' + src + '" /></li>'
+    return '<li class="carouse-item ' + className + '" >' +
+                '<img src="' + src + '" />' +
+            '</li>';
 }
 
 function Carouse(props = {}) {
@@ -14,19 +16,33 @@ function Carouse(props = {}) {
     carouse.state = {
         picOffset: 0
     };
-    carouse.widgetDidMount = function(node) {
-        setTimeout(() => {
-            console.log(1);
-        }, 1000);
+
+    carouse.widgetDidMount = function() {
+        var fn = function() {
+            if (this.state.picOffset < 5) {
+                this.setState((oldState) => {
+                    return {
+                        picOffset: ++oldState.picOffset
+                    };
+                });
+            } else {
+                this.setState({
+                    picOffset: 0
+                });
+            }
+        };
+
+        setInterval(fn.bind(this), 3000);
     };
 
     carouse.render = function() {
         var template;
 
         let imgList = props.imgs.map((item, key) => {
+            var tmp = key + this.state.picOffset;
             return PicItem({
                 src: item,
-                className: "pic" + (key + this.state.picOffset)
+                className: "pic" + ( tmp > 4 ? tmp - 5 : tmp)
             });
         });
 
