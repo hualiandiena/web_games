@@ -12,7 +12,7 @@ function buildFragment(html) {
     // 是否自动填充某些元素，如option、thead等
 
     // 将XHTML写法转变为标准HTML元素书写，利用innerHTML转成为DOM元素
-    tmp.innerHTML = html.replace(XHTML_TAG_REGEXP, "<$1></$2>");
+    tmp.innerHTML = html.replace(/\{\{|\}\}/g, "").replace(XHTML_TAG_REGEXP, "<$1></$2>");
     nodes = nodes.concat(...tmp.childNodes);
 
     // clear
@@ -36,25 +36,12 @@ function parseHTML(html) {
     return parsed ? parsed.childNodes : [];
 }
 
-function replaceHTML(nodes, newNodes) {
-    if (nodes && nodes.length) {
-        if (nodes.length === newNodes.length) {
-            nodes.forEach((node, key) => {
-                var newNode = newNodes[key];
+function getHTMLProps(html) {
+    var props = html.match(/ ()="\{\{/);
+}
 
-                // 比较两个节点是否一致，若不一致则进行下面的操作
-                if (node.nodeType !== newNode.nodeType || 
-                        node.nodeName !== newNode.nodeName) {
-                    node.parentNode.replace(newNode, node);
-                } else if (node.nodeType === 3 &&
-                    node.nodeValue !== newNode.nodeValue){
-                    node.nodeValue = newNode.nodeValue;
-                } else {
-                    
-                }
-            });
-        }
-    }
+function getLastestHTML() {
+    
 }
 
 var Widget = {
@@ -64,9 +51,7 @@ var Widget = {
         if (nHtml === oHtml) {
             return ;
         }
-        var newNodes = parseHTML(nHtml);
-        replaceHTML(this._nodes, newNodes);
-        
+
     },
     mount: function(ele, index) {
         if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {

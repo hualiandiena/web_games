@@ -4,7 +4,7 @@ import "./Carouse.css";
 
 function PicItem(props) {
     var { className = "", src = "" } = props;
-    return '<li class="carouse-item ' + className + '" >' +
+    return '<li class="carouse-item {{' + className + '}}" >' +
                 '<img src="' + src + '" />' +
             '</li>';
 }
@@ -38,7 +38,7 @@ function Carouse(props = {}) {
     carouse.render = function() {
         var template;
 
-        let imgList = props.imgs.map((item, key) => {
+        var imgList = props.imgs.map((item, key) => {
             var tmp = key + this.state.picOffset;
             return PicItem({
                 src: item,
