@@ -2,6 +2,9 @@ const SING_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/;
 // const TAG_NAME_REGEXP = /<([\w:-]+)/;
 const XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi;
 
+const VARIABLE_START = "{{";
+const VARIABLE_END = "}}";
+
 // const DIFFTYPE = ["none", "attribute", "childList", "subtree"];
 
 function buildFragment(html) {
@@ -36,15 +39,7 @@ function parseHTML(html) {
     return parsed ? parsed.childNodes : [];
 }
 
-function getHTMLProps(html) {
-    var props = html.match(/ ()="\{\{/);
-}
-
-function getLastestHTML() {
-    
-}
-
-var Widget = {
+export var Widget = {
     _updateDOM: function(nHtml = this.render()) {
         var oHtml = this._stateCache[this._stateCache.length - 1].htmlCache;
 
@@ -52,18 +47,24 @@ var Widget = {
             return ;
         }
 
+        this._nodeAttrsListeners.forEach((listener) => {
+            if (listener.node) {
+
+            }
+        });
+
     },
     mount: function(ele, index) {
         if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {
             var html, nodes = [];
 
-            this._parentNode = ele;
-            this._DOMindex = index;
+            // this._parentNode = ele;
+            // this._DOMindex = index;
             html = this.render();
             if (html) {
                 nodes = parseHTML(html);
 
-                this._nodes = [...nodes];
+                this.element = [...nodes][0];
 
                 // mount dom
                 if (index && ele.children.length && 
@@ -91,11 +92,31 @@ var Widget = {
             }
         }
     },
-    render: function() {
-        return "";
-    },
-    widgetDidMount: function() {
+    collectComponent: function(nodes) {
+        if (nodes.length) {
+            for (var index = 0, len = nodes.length; index < len; index++ ) {
+                var node = nodes[index];
 
+                this.collectAttrComponent(node);
+
+                collectComponent(node.childNodes);
+            }
+        }
+    },
+    collectAttrComponent: function(node) {
+        var attrs = node.attributes;
+        attrs.forEach((attr) => {
+            var value = attr.value;
+            var startIndex = value.indexOf(VARIABLE_START);
+            var endIndex = value.indexOf(VARIABLE_END);
+
+            if (startIndex !== -1 && endIndex !== -1) {
+                this._nodeAttrsListeners = {
+                    node,
+                    attr
+                };
+            }
+        });
     },
     setState: function(state) {
         var variableType = typeof state;
@@ -122,7 +143,16 @@ var Widget = {
             state: newState,
             htmlCache: newHtml
         });
+    },
+    render: function() {
+        return "";
+    },
+    widgetDidMount: function() {
+
     }
 };
 
-export default Widget;
+
+exprot function createElement() {
+
+}

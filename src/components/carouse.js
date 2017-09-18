@@ -3,8 +3,8 @@ import Widget from "../widgets.js";
 import "./Carouse.css";
 
 function PicItem(props) {
-    var { className = "", src = "" } = props;
-    return '<li class="carouse-item {{' + className + '}}" >' +
+    var { className = "", src = "", key } = props;
+    return '<li key="' + key +  '" class="carouse-item {{' + className + '}}" >' +
                 '<img src="' + src + '" />' +
             '</li>';
 }
@@ -41,19 +41,21 @@ function Carouse(props = {}) {
         var imgList = props.imgs.map((item, key) => {
             var tmp = key + this.state.picOffset;
             return PicItem({
+                key: key,
                 src: item,
                 className: "pic" + ( tmp > 4 ? tmp - 5 : tmp)
             });
         });
 
         template =  '<div class="carouse-wrapper">' +
-                        '<ul class="carouse-content">' +
-                            imgList.join("") +
-                        '</ul>' +
+                        '<ul class="carouse-content">{{imgList}}</ul>' +
                     '</div>';
 
-        return template;
-    }
+        return {
+            template,
+            imgList
+        };
+    };
 
     return carouse;
 }
