@@ -1,12 +1,18 @@
-import Widget from "../widgets.js";
+import { Widget, createElement } from "../widgets.js";
 
 import "./Carouse.css";
 
 function PicItem(props) {
     var { className = "", src = "", key } = props;
-    return '<li key="' + key +  '" class="carouse-item {{' + className + '}}" >' +
-                '<img src="' + src + '" />' +
-            '</li>';
+    var template =  '<li key="' + key +  '" class="carouse-item {{className}}" >' +
+                        '<img src="{{src}}" />' +
+                    '</li>';
+
+    return createElement(template, {
+        className,
+        src,
+        key
+    });
 }
 
 function Carouse(props = {}) {
@@ -32,7 +38,7 @@ function Carouse(props = {}) {
             }
         };
 
-        setInterval(fn.bind(this), 3000);
+        // setInterval(fn.bind(this), 3000);
     };
 
     carouse.render = function() {
@@ -51,10 +57,7 @@ function Carouse(props = {}) {
                         '<ul class="carouse-content">{{imgList}}</ul>' +
                     '</div>';
 
-        return {
-            template,
-            imgList
-        };
+        return createElement(template, {imgList});
     };
 
     return carouse;
