@@ -39,91 +39,65 @@ function parseHTML(html) {
     return parsed ? parsed.childNodes : [];
 }
 
-function getChange(nodes, eleConfig, dealFn) {
-    nodes.forEach((node, key) => {
-        if (node.nodeType === 1) {
-            let nAttrs = node.attributes;
-            Array.prototype.forEach.call(nAttrs, (nAttr) => {
-                var needReplace = false;
-                var nVal = nAttr.value.replace(/\{\{(\w+)\}\}/g, function(str, name) {
-                    needReplace = true;
-                    dealFn(name, eleConfig[name], node, nAttr.name);
-                    return eleConfig[name];
-                });
-                if (needReplace) {
-                    node.setAttribute(nAttr.name, nVal);
-                }
-            });
-
-            getChange(node.childNodes, eleConfig, dealFn);
-        } else if (node.nodeType === 3) {
-            let matches = /\{\{([^(?:{{)(?:}})]+)\}\}/.exec(node.nodeValue);
-            if (matches) {
-                let name = matches[1];
-                let eleVariable = eleConfig[name];
-                if (typeof eleVariable === "object") {
-                    let parentNode = node.parentNode;
-                    let htmlStr = parentNode.innerHTML;
-
-                    dealFn(name, eleVariable, parentNode, "PARENT_CHILD");
-
-                    if (Array.isArray(eleVariable)) {
-                        let replaceText = eleVariable.reduce((text, item) => {
-                            return text + item.template;
-                        }, "");
-                        parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", replaceText);
-
-                        for (let index = 0, len = eleVariable.length; index < len; index++) {
-                            getChange([parentNode.childNodes[key + index]], 
-                                eleVariable[index].config, dealFn);
-                        }
-                    } else {
-                        parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", eleVariable.template);
-                        getChange(parentNode.childNodes, eleVariable.config, dealFn);
-                    }
-                } else {
-                    dealFn(name, eleVariable, node);
-                    node.nodeValue = eleVariable;
-                }
-            }
-        }
-    });
-}
-
 export var Widget = {
     _updateDOM: function(nEle = this.render()) {
-        function cleanDirty(config) {
+        function cleanDirty(config, scope) {
             for (let name in config) {
-                if (config.hasOwnProperty(name)) {
-                    if (typeof config[name] === "object") {
-                        
-                    } else {
-                        let curVal = this.domLisenters[name].currentVal;
-                        if (name in this.domLisenters && 
-                                config[name] !== curVal) {
+                if (!config.hasOwnProperty(name)) {
+                    return ;
+                }
+                if (typeof config[name] === "object") {
+                    let curVal = scope[name].currentVal;
+                    let childVariable = config[name];
+                    if (Array.isArray(childVariable)) {
+                        let tmpKeys = curVal.map((item) => {
+                            return item.config.key;
+                        });
+                        childVariable.forEach((item, index) => {
+                            if (item.config.key in tmpKeys) {
+                                tmpKeys.splice(index, 1);
+                                cleanDirty(item.conifg, scope[name].childs[item.config.key]);
+                            } else {
 
-                            let lisenters = this.domLisenters[name].lisenters;
-                            lisenters.forEach((info) => {
-                                if (info.node) {
-                                    switch (info.type) {
-                                        case "TEXT": 
-                                            node.nodeValue = config[name];
-                                            break;
-                                        case "ATTR":
-                                            var nVal = node.getAttribute(info.nAttr).repalce(curVal, config[name]);
-                                            node.setAttribute(info.nAttr, nVal);
-                                            break;
-                                        // no defaults
-                                    }
-                                }
-                            });
-                            this.domLisenters[name].currentVal = config[name];
-                        }
+                            }
+                        });
+
+                        // del key and nodes
+                        tmpKeys.forEach((key) => {
+                            // scope[name].node.removeChild();
+                            delete scope[name].childs[key];
+                        });
+                    } else {
+
                     }
+                    return ;
+                }
+
+                let curVal = scope[name].currentVal;
+                if (name in scope && 
+                        config[name] !== curVal) {
+
+                    let lisenters = scope[name].lisenters;
+                    lisenters.forEach((info) => {
+                        if (!info.node) { 
+                            return ;
+                        }
+                        switch (info.type) {
+                            case "TEXT": 
+                                info.node.nodeValue = config[name];
+                                break;
+                            case "ATTR":
+                                var nVal = info.node.getAttribute(info.nAttr).repalce(curVal, config[name]);
+                                info.node.setAttribute(info.nAttr, nVal);
+                                break;
+                            // no defaults
+                        }
+                    });
+                    scope[name].currentVal = config[name];
                 }
             }
         }
-        // cleanDirty(nEle.config);
+        // cleanDirty(nEle.config, this.domLisenters);
     },
     mount: function(ele, index) {
         if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {
@@ -134,7 +108,8 @@ export var Widget = {
                 this.domLisenters = {
                 };
                 nodes = parseHTML(html);
-                getChange(nodes, config, this.addVaribleListener.bind(this));
+                this.getChange(nodes, config);
+                console.log(this.domLisenters);
 
                 this.element = [...nodes][0];
 
@@ -164,39 +139,128 @@ export var Widget = {
             }
         }
     },
-    addVaribleListener: function(name, val, node, attr) {
-        var type = attr === "PARENT_CHILD" ? "CHILD" : attr ? "ATTR" : "TEXT";
-        if (this.domLisenters[name]) {
-            if (type === "ATTR") {
-                this.domLisenters[name].lisenters.push({
-                    node,
-                    type,
-                    nAttr: attr
-                });
+    getChange: function(nodes, eleConfig) {
+        var dealFn = this.addVaribleListener.bind(this);
+
+        function getDomChange(nodes, eleConfig, scope) {
+            nodes.forEach((node, key) => {
+                if (node.nodeType === 1) {
+                    let nAttrs = node.attributes;
+                    Array.prototype.forEach.call(nAttrs, (nAttr) => {
+                        var needReplace = false;
+                        var nVal = nAttr.value.replace(/\{\{(\w+)\}\}/g, function(str, name) {
+                            needReplace = true;
+                            dealFn(scope, name, eleConfig[name], node, nAttr.name);
+                            return eleConfig[name];
+                        });
+                        if (needReplace) {
+                            node.setAttribute(nAttr.name, nVal);
+                        }
+                    });
+
+                    getDomChange(node.childNodes, eleConfig, scope);
+                } else if (node.nodeType === 3) {
+                    let matches = /\{\{([^(?:{{)(?:}})]+)\}\}/.exec(node.nodeValue);
+                    if (!matches) {
+                        return;
+                    }
+                    let name = matches[1];
+                    let eleVariable = eleConfig[name];
+                    if (typeof eleVariable === "object") {
+                        let parentNode = node.parentNode;
+                        let htmlStr = parentNode.innerHTML;
+
+                        dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD");
+
+                        if (Array.isArray(eleVariable)) {
+                            let replaceText = eleVariable.reduce((text, item) => {
+                                return text + item.template;
+                            }, "");
+                            parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", replaceText);
+
+                            for (let index = 0, len = eleVariable.length; index < len; index++) {
+                                let childKey = eleVariable[index].config.key;
+                                let tmpScope = scope ? scope + "." + name + childKey : name + "-" + childKey;
+                                getDomChange([parentNode.childNodes[key + index]], 
+                                    eleVariable[index].config, tmpScope);
+                            }
+                        } else {
+                            parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", eleVariable.template);
+
+                            let tmpScope = scope ? scope + "." + name : name;
+                            getDomChange(parentNode.childNodes, eleVariable.config, tmpScope);
+                        }
+                    } else {
+                        dealFn(scope, name, eleVariable, node);
+                        node.nodeValue = eleVariable;
+                    }
+                }
+            });
+        }
+        getDomChange(nodes, eleConfig);
+        
+    },
+    addVaribleListener: function(scope, name, val, node, attr) {
+        var tmp = {
+            node
+        };
+        if (attr === "PARENT_CHILD") {
+            tmp.type = "PARENT_CHILD";
+        } else if (attr) {
+            tmp.type = "ATTR";
+            tmp.nAttr = attr;
+        } else {
+            tmp.type = "TEXT";
+        }
+
+        if (scope) {
+            let tmpScope = scope.split(".");
+            let targetScope = tmpScope.reduce((scope, name) => {
+                var index = name.indexOf("-");
+                if (index > -1) {
+                    let parentName = name.slice(0, index);
+                    let key = name.slice(index + 1);
+                    return scope[parentName].childs[key];
+                } else {
+                    return scope[name].child;
+                }
+            }, this.domLisenters);
+
+            if (name in targetScope) {
+                targetScope[name].lisenters.push(tmp);
             } else {
-                this.domLisenters[name].lisenters.push({
-                    node,
-                    type
-                });
+                targetScope[name] = {
+                    currentVal: val,
+                    lisenters: [tmp]
+                };
+                if (Array.isArray(val)) {
+                    targetScope[name].childs = [];
+                    targetScope[name].childs = val.reduce((obj, item) => {
+                        obj[item.config.key] = {};
+                        return obj;
+                    }, {});
+                } else if (typeof val === "object") {
+                    targetScope[name].child = {};
+                }
             }
         } else {
-            if (type === "ATTR") {
-                this.domLisenters[name] = {
-                    currentVal: val,
-                    lisenters: [{
-                        node,
-                        nAttr: attr,
-                        type
-                    }]
-                };
+
+            if (name in this.domLisenters) {
+                this.domLisenters[name].lisenters.push(tmp);
             } else {
                 this.domLisenters[name] = {
                     currentVal: val,
-                    lisenters: [{
-                        node,
-                        type
-                    }]
+                    lisenters: [tmp]
                 };
+                if (Array.isArray(val)) {
+                    this.domLisenters[name].childs = [];
+                    this.domLisenters[name].childs = val.reduce((obj, item) => {
+                        obj[item.config.key] = {};
+                        return obj;
+                    }, {});
+                } else {
+                    this.domLisenters[name].child = {};
+                }
             }
         }
     },
@@ -242,9 +306,13 @@ export function createElement(template = "", config = {}) {
     var html = template.replace(TEMPLATE_REGEXP, (str, attrexp, attr, name) => {
         if (typeof config[name] === "object") {
             dom.childs.push(name);
-            return config[name].reduce((childHTML, item) => {
-                return childHTML + attrexp + item.html;
-            }, "");
+            if (Array.isArray(config[name])) {
+                return config[name].reduce((childHTML, item) => {
+                    return childHTML + attrexp + item.html;
+                }, "");
+            } else {
+                return config[name].html;
+            }
         }
 
         return attrexp + config[name];
