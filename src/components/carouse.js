@@ -25,7 +25,7 @@ function Carouse(props = {}) {
 
     carouse.widgetDidMount = function() {
         var fn = function() {
-            if (this.state.picOffset < 5) {
+            if (this.state.picOffset < 4) {
                 this.setState((oldState) => {
                     return {
                         picOffset: ++oldState.picOffset
@@ -38,7 +38,7 @@ function Carouse(props = {}) {
             }
         };
 
-        // setInterval(fn.bind(this), 3000);
+        setInterval(fn.bind(this), 3000);
     };
 
     carouse.render = function() {
@@ -51,7 +51,7 @@ function Carouse(props = {}) {
                 src: item,
                 className: "pic" + ( tmp > 4 ? tmp - 5 : tmp)
             });
-        });
+        }, this);
 
         template =  '<div class="carouse-wrapper">' +
                         '<ul class="carouse-content">{{imgList}}</ul>' +

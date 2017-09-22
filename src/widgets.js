@@ -41,39 +41,69 @@ function parseHTML(html) {
 
 export var Widget = {
     _updateDOM: function(nEle = this.render()) {
-        function cleanDirty(config, scope) {
+        function cleanDirty(config, scope, scopeStr) {
             for (let name in config) {
                 if (!config.hasOwnProperty(name)) {
-                    return ;
+                    continue ;
                 }
+                if (!(name in scope)) {
+                    continue ;
+                }
+
+
+                // 未比较模板
+                let curVal = scope[name].currentVal;
                 if (typeof config[name] === "object") {
-                    let curVal = scope[name].currentVal;
                     let childVariable = config[name];
                     if (Array.isArray(childVariable)) {
-                        let tmpKeys = curVal.map((item) => {
-                            return item.config.key;
-                        });
+                        let tmpKeys = [];
+                        let curNode = null;
                         childVariable.forEach((item, index) => {
-                            if (item.config.key in tmpKeys) {
-                                tmpKeys.splice(index, 1);
-                                cleanDirty(item.conifg, scope[name].childs[item.config.key]);
+                            if (item.config.key in scope[name].childs) {
+                                tmpKeys.push(item.config.key);
+                                curNode = scope[name].childs[item.config.key].node;
+
+                                let tmpScope = scope[name].childs[item.config.key].scope; 
+                                if (scopeStr) {
+                                    tmpScopeStr = scopeStr + "." + name + "-" + item.config.key;
+                                } else {
+                                    tmpScopeStr = name + "-" + item.config.key;
+                                }
+                                cleanDirty(item.config, tmpScope, tmpScopeStr);
                             } else {
 
+                                // add Node and note changes
+                                let newNodes = parseHTML(item.template);
+                                scope[name].childs[item.config.key] = {
+                                    node: newNodes[0],
+                                    scope: {}
+                                };
+                                this.getChange(newNodes, item.conifg, scopeStr);
+
+                                let nextNode = curNode.nextSibling;
+                                if (nextNode) {
+                                    scope[name].node.inserBefore(newNodes[0], nexNode);
+                                } else {
+                                    scope[name].node.appendChild(newNodes[0]);
+                                }
                             }
                         });
 
                         // del key and nodes
-                        tmpKeys.forEach((key) => {
-                            // scope[name].node.removeChild();
-                            delete scope[name].childs[key];
+                        curVal.forEach((item) => {
+                            if (!(item.config.key in tmpKeys)) {
+                                scope[name].lisenters.forEach((lisenter) => {
+                                    lisenter.node.removeChild(scope[name].childs[item.config.key].node);
+                                });
+                                delete scope[name].childs[item.config.key];
+                            }
                         });
                     } else {
-
+                        if () {}
                     }
                     return ;
                 }
 
-                let curVal = scope[name].currentVal;
                 if (name in scope && 
                         config[name] !== curVal) {
 
@@ -87,7 +117,8 @@ export var Widget = {
                                 info.node.nodeValue = config[name];
                                 break;
                             case "ATTR":
-                                var nVal = info.node.getAttribute(info.nAttr).repalce(curVal, config[name]);
+                                var oVal = info.node.getAttribute(info.nAttr)
+                                var nVal = oVal.replace(curVal, config[name]);
                                 info.node.setAttribute(info.nAttr, nVal);
                                 break;
                             // no defaults
@@ -97,7 +128,7 @@ export var Widget = {
                 }
             }
         }
-        // cleanDirty(nEle.config, this.domLisenters);
+        cleanDirty(nEle.config, this.domLisenters);
     },
     mount: function(ele, index) {
         if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {
@@ -133,13 +164,12 @@ export var Widget = {
                 let dulState = {}; 
                 Object.assign(dulState, this.state);
                 this._stateCache = [{
-                    state: dulState,
-                    htmlCache: html
+                    state: dulState
                 }];
             }
         }
     },
-    getChange: function(nodes, eleConfig) {
+    getChange: function(nodes, eleConfig, scope) {
         var dealFn = this.addVaribleListener.bind(this);
 
         function getDomChange(nodes, eleConfig, scope) {
@@ -170,13 +200,15 @@ export var Widget = {
                         let parentNode = node.parentNode;
                         let htmlStr = parentNode.innerHTML;
 
-                        dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD");
-
+                        let variableNodes = [];
                         if (Array.isArray(eleVariable)) {
                             let replaceText = eleVariable.reduce((text, item) => {
                                 return text + item.template;
                             }, "");
                             parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", replaceText);
+
+                            variableNodes = Array.prototype.slice.call(parentNode.childNodes, key , key + eleVariable.length);
+                            dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
 
                             for (let index = 0, len = eleVariable.length; index < len; index++) {
                                 let childKey = eleVariable[index].config.key;
@@ -186,6 +218,9 @@ export var Widget = {
                             }
                         } else {
                             parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", eleVariable.template);
+
+                            variableNodes = [parentNode.childNodes[key]];
+                            dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
 
                             let tmpScope = scope ? scope + "." + name : name;
                             getDomChange(parentNode.childNodes, eleVariable.config, tmpScope);
@@ -197,10 +232,9 @@ export var Widget = {
                 }
             });
         }
-        getDomChange(nodes, eleConfig);
-        
+        getDomChange(nodes, eleConfig, scope); 
     },
-    addVaribleListener: function(scope, name, val, node, attr) {
+    addVaribleListener: function(scope, name, val, node, attr, childNodes) {
         var tmp = {
             node
         };
@@ -220,9 +254,9 @@ export var Widget = {
                 if (index > -1) {
                     let parentName = name.slice(0, index);
                     let key = name.slice(index + 1);
-                    return scope[parentName].childs[key];
+                    return scope[parentName].childs[key].scope;
                 } else {
-                    return scope[name].child;
+                    return scope[name].child.scope;
                 }
             }, this.domLisenters);
 
@@ -235,12 +269,18 @@ export var Widget = {
                 };
                 if (Array.isArray(val)) {
                     targetScope[name].childs = [];
-                    targetScope[name].childs = val.reduce((obj, item) => {
-                        obj[item.config.key] = {};
+                    targetScope[name].childs = val.reduce((obj, item, index) => {
+                        obj[item.config.key] = {
+                            node: childNodes[index],
+                            scope: {}
+                        };
                         return obj;
                     }, {});
                 } else if (typeof val === "object") {
-                    targetScope[name].child = {};
+                    targetScope[name].child = {
+                        node: childNodes[0],
+                        scope: {}
+                    };
                 }
             }
         } else {
@@ -254,12 +294,18 @@ export var Widget = {
                 };
                 if (Array.isArray(val)) {
                     this.domLisenters[name].childs = [];
-                    this.domLisenters[name].childs = val.reduce((obj, item) => {
-                        obj[item.config.key] = {};
+                    this.domLisenters[name].childs = val.reduce((obj, item, index) => {
+                        obj[item.config.key] = {
+                            node: childNodes[index],
+                            scope: {}
+                        };
                         return obj;
                     }, {});
                 } else {
-                    this.domLisenters[name].child = {};
+                    this.domLisenters[name].child = {
+                        node: childNodes[0],
+                        scope: {}
+                    };
                 }
             }
         }
@@ -285,10 +331,9 @@ export var Widget = {
         nEle = this.render();
 
         this._updateDOM(nEle);
-        // this._stateCache.push({
-        //     state: newState,
-        //     htmlCache: newHtml
-        // });
+        this._stateCache.push({
+            state: newState
+        });
     },
     render: function() {
         return "";
@@ -300,12 +345,12 @@ export var Widget = {
 
 
 export function createElement(template = "", config = {}) {
-    var dom = {
-        childs: []
-    };
+    // var dom = {
+    //     childs: []
+    // };
     var html = template.replace(TEMPLATE_REGEXP, (str, attrexp, attr, name) => {
         if (typeof config[name] === "object") {
-            dom.childs.push(name);
+            // dom.childs.push(name);
             if (Array.isArray(config[name])) {
                 return config[name].reduce((childHTML, item) => {
                     return childHTML + attrexp + item.html;
