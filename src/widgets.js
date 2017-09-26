@@ -63,7 +63,8 @@ export var Widget = {
                                 tmpKeys.push(item.config.key);
                                 curNode = scope[name].childs[item.config.key].node;
 
-                                let tmpScope = scope[name].childs[item.config.key].scope; 
+                                let tmpScope = scope[name].childs[item.config.key].scope;
+                                let tmpScopeStr;
                                 if (scopeStr) {
                                     tmpScopeStr = scopeStr + "." + name + "-" + item.config.key;
                                 } else {
@@ -82,7 +83,7 @@ export var Widget = {
 
                                 let nextNode = curNode.nextSibling;
                                 if (nextNode) {
-                                    scope[name].node.inserBefore(newNodes[0], nexNode);
+                                    scope[name].node.inserBefore(newNodes[0], nextNode);
                                 } else {
                                     scope[name].node.appendChild(newNodes[0]);
                                 }
@@ -99,9 +100,9 @@ export var Widget = {
                             }
                         });
                     } else {
-                        if () {}
+                        cleanDirty(childVariable.config, scope[name].child.scope, scopeStr ? name : scopeStr + "." + name);
                     }
-                    return ;
+                    continue ;
                 }
 
                 if (name in scope && 
@@ -223,7 +224,7 @@ export var Widget = {
                             dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
 
                             let tmpScope = scope ? scope + "." + name : name;
-                            getDomChange(parentNode.childNodes, eleVariable.config, tmpScope);
+                            getDomChange([parentNode.childNodes[key]], eleVariable.config, tmpScope);
                         }
                     } else {
                         dealFn(scope, name, eleVariable, node);
@@ -360,7 +361,7 @@ export function createElement(template = "", config = {}) {
             }
         }
 
-        return attrexp + config[name];
+        return attrexp + config[name] ? config[name] : "";
     });
     return {
         template,
