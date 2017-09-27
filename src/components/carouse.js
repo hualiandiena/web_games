@@ -4,9 +4,9 @@ import "./Carouse.css";
 
 function PicItem(props) {
     var { className = "", src = "", key } = props;
-    var template =  '<li key="' + key +  '" class="carouse-item {{className}}" >' +
-                        '<img src="{{src}}" />' +
-                    '</li>';
+    var template =  `<li key="${key}" class="carouse-item {{className}}" >
+                        <img src="{{src}}" />
+                    </li>`;
 
     return createElement(template, {
         className,
@@ -38,7 +38,7 @@ function Carouse(props = {}) {
             }
         };
 
-        setInterval(fn.bind(this), 3000);
+        setInterval(fn.bind(this), 2000);
     };
 
     carouse.render = function() {

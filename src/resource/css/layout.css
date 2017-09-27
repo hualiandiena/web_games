@@ -1,8 +1,13 @@
-ul, li {
+dl, dt, dd, ol, ul, li, fieldset, form {
 	margin: 0;
 	padding: 0;
 }
 
-li {
+ol, ul {
 	list-style: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
 }

@@ -1,11 +1,15 @@
+
+/*
+** widgets.js: a small framework that can help create a Component
+*/
+
 const SING_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/;
 // const TAG_NAME_REGEXP = /<([\w:-]+)/;
 const XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi;
 
 const TEMPLATE_REGEXP = /(\s+([\w-]+)\s*="[\w-\s]*|>[^<>]*)\{\{([^{}]+)\}\}/g;
-
-// const VARIABLE_START = "{{";
-// const VARIABLE_END = "}}";
+const TEMPLATE_NODE_VAR = /\{\{([^(?:{{)(?:}})]+)\}\}/;
+const TEMPLATE_ATTR_VAR = /\{\{(\w+)\}\}/g;
 
 function buildFragment(html) {
     var nodes = [];
@@ -38,6 +42,25 @@ function parseHTML(html) {
     parsed = buildFragment(html);
     return parsed ? parsed.childNodes : [];
 }
+
+/*
+** name: render
+** return: a obj which is created by creatElement
+** function: the result of this function affect how the component render in browser,
+**           widget will run this function when component mount or update
+*/
+
+/*
+** name: mount
+** params: a dom element which is contain the component; the index of the element'childs
+** functin: mount component to dom
+*/
+
+/*
+** name: setState
+** params: new State, or a function return a new state
+** function: update the component
+*/
 
 export var Widget = {
     _updateDOM: function(nEle = this.render()) {
@@ -79,7 +102,7 @@ export var Widget = {
                                     node: newNodes[0],
                                     scope: {}
                                 };
-                                this.getChange(newNodes, item.conifg, scopeStr);
+                                this._getChange(newNodes, item.conifg, scopeStr);
 
                                 let nextNode = curNode.nextSibling;
                                 if (nextNode) {
@@ -131,47 +154,8 @@ export var Widget = {
         }
         cleanDirty(nEle.config, this.domLisenters);
     },
-    mount: function(ele, index) {
-        if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {
-            var nodes = [];
-
-            var { template:html, config } = this.render();
-            if (html) {
-                this.domLisenters = {
-                };
-                nodes = parseHTML(html);
-                this.getChange(nodes, config);
-                console.log(this.domLisenters);
-
-                this.element = [...nodes][0];
-
-                // mount dom
-                if (index && ele.children.length && 
-                        index !== ele.children.length) {
-                    nodes.forEach((node) => {
-                        var referenceNode = ele.childNodes[index];
-                        ele.insertBefore(node, referenceNode);
-                    })
-                } else {
-                    nodes.forEach((node) => {
-                        ele.appendChild(node);
-                    });
-                }
-                this.widgetDidMount();
-            }
-
-            // init
-            if (this.state) {
-                let dulState = {}; 
-                Object.assign(dulState, this.state);
-                this._stateCache = [{
-                    state: dulState
-                }];
-            }
-        }
-    },
-    getChange: function(nodes, eleConfig, scope) {
-        var dealFn = this.addVaribleListener.bind(this);
+    _getChange: function(nodes, eleConfig, scope) {
+        var dealFn = this._addVaribleListener.bind(this);
 
         function getDomChange(nodes, eleConfig, scope) {
             nodes.forEach((node, key) => {
@@ -179,7 +163,7 @@ export var Widget = {
                     let nAttrs = node.attributes;
                     Array.prototype.forEach.call(nAttrs, (nAttr) => {
                         var needReplace = false;
-                        var nVal = nAttr.value.replace(/\{\{(\w+)\}\}/g, function(str, name) {
+                        var nVal = nAttr.value.replace(TEMPLATE_ATTR_VAR, function(str, name) {
                             needReplace = true;
                             dealFn(scope, name, eleConfig[name], node, nAttr.name);
                             return eleConfig[name];
@@ -191,7 +175,7 @@ export var Widget = {
 
                     getDomChange(node.childNodes, eleConfig, scope);
                 } else if (node.nodeType === 3) {
-                    let matches = /\{\{([^(?:{{)(?:}})]+)\}\}/.exec(node.nodeValue);
+                    let matches = TEMPLATE_NODE_VAR.exec(node.nodeValue);
                     if (!matches) {
                         return;
                     }
@@ -235,7 +219,7 @@ export var Widget = {
         }
         getDomChange(nodes, eleConfig, scope); 
     },
-    addVaribleListener: function(scope, name, val, node, attr, childNodes) {
+    _addVaribleListener: function(scope, name, val, node, attr, childNodes) {
         var tmp = {
             node
         };
@@ -308,6 +292,45 @@ export var Widget = {
                         scope: {}
                     };
                 }
+            }
+        }
+    },
+    mount: function(ele, index) {
+        if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {
+            var nodes = [];
+
+            var { template:html, config } = this.render();
+            if (html) {
+                this.domLisenters = {
+                };
+                nodes = parseHTML(html);
+                this._getChange(nodes, config);
+                console.log(this.domLisenters);
+
+                this.element = [...nodes][0];
+
+                // mount dom
+                if (index && ele.children.length && 
+                        index !== ele.children.length) {
+                    nodes.forEach((node) => {
+                        var referenceNode = ele.childNodes[index];
+                        ele.insertBefore(node, referenceNode);
+                    })
+                } else {
+                    nodes.forEach((node) => {
+                        ele.appendChild(node);
+                    });
+                }
+                this.widgetDidMount();
+            }
+
+            // init
+            if (this.state) {
+                let dulState = {}; 
+                Object.assign(dulState, this.state);
+                this._stateCache = [{
+                    state: dulState
+                }];
             }
         }
     },
