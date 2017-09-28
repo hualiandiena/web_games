@@ -11,6 +11,8 @@ const TEMPLATE_REGEXP = /(\s+([\w-]+)\s*="[\w-\s]*|>[^<>]*)\{\{([^{}]+)\}\}/g;
 const TEMPLATE_NODE_VAR = /\{\{([^(?:{{)(?:}})]+)\}\}/;
 const TEMPLATE_ATTR_VAR = /\{\{(\w+)\}\}/g;
 
+const eventTypes = ["click", "change", "mouseup", "mousedown", "mouseover", "mouseout"];
+
 function buildFragment(html) {
     var nodes = [];
     var fragment = document.createDocumentFragment();
@@ -72,7 +74,6 @@ export var Widget = {
                 if (!(name in scope)) {
                     continue ;
                 }
-
 
                 // 未比较模板
                 let curVal = scope[name].currentVal;
@@ -141,8 +142,13 @@ export var Widget = {
                                 info.node.nodeValue = config[name];
                                 break;
                             case "ATTR":
-                                var oVal = info.node.getAttribute(info.nAttr)
-                                var nVal = oVal.replace(curVal, config[name]);
+                                var nVal;
+                                var oVal = info.node.getAttribute(info.nAttr);
+                                if (curVal) {
+                                    nVal = oVal.replace(curVal, config[name]);
+                                } else {
+                                    nVal = oVal + config[name];
+                                } 
                                 info.node.setAttribute(info.nAttr, nVal);
                                 break;
                             // no defaults
@@ -321,7 +327,7 @@ export var Widget = {
                         ele.appendChild(node);
                     });
                 }
-                this.widgetDidMount();
+                this.widgetDidMount(this.element);
             }
 
             // init
