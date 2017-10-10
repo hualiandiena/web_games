@@ -72,34 +72,41 @@ export var Widget = {
                     continue ;
                 }
                 if (!(name in scope)) {
+                    // 处理新增的节点变量
                     continue ;
                 }
 
-                // 未比较模板
-                let curVal = scope[name].currentVal;
+                // 未比较模板，模板的差异是直接dom元素替换
                 if (typeof config[name] === "object") {
-                    let childVariable = config[name];
-                    if (Array.isArray(childVariable)) {
+                    let childVar = config[name];
+                    if (Array.isArray(childVar)) {
                         let tmpKeys = [];
                         let curNode = null;
-                        childVariable.forEach((item, index) => {
-                            if (item.config.key in scope[name].childs) {
-                                tmpKeys.push(item.config.key);
-                                curNode = scope[name].childs[item.config.key].node;
+                        let scopeChilds = scope[name].childs;
+                        childVar.forEach((item, index) => {
+                            var itemKey = item.config.key;
+                            if (itemKey in scopeChilds) {
+                                tmpKeys.push(itemKey);
+                                curNode = scopeChilds[itemKey].node;
 
-                                let tmpScope = scope[name].childs[item.config.key].scope;
+                                if (item.template !== scopeChilds[itemKey].template) {
+                                    updateTemplate(item.template, scopeChilds[itemKey].template);
+                                    scopeChilds[itemKey] = item.template;
+                                }
+
                                 let tmpScopeStr;
                                 if (scopeStr) {
-                                    tmpScopeStr = scopeStr + "." + name + "-" + item.config.key;
+                                    tmpScopeStr = scopeStr + "." + name + "-" + itemKey;
                                 } else {
-                                    tmpScopeStr = name + "-" + item.config.key;
+                                    tmpScopeStr = name + "-" + itemKey;
                                 }
-                                cleanDirty(item.config, tmpScope, tmpScopeStr);
+                                cleanDirty(item.config, scopeChilds[itemKey].scope, tmpScopeStr);
                             } else {
 
                                 // add Node and note changes
                                 let newNodes = parseHTML(item.template);
-                                scope[name].childs[item.config.key] = {
+                                scopeChilds[itemKey] = {
+                                    template: item.template,
                                     node: newNodes[0],
                                     scope: {}
                                 };
@@ -115,27 +122,46 @@ export var Widget = {
                         });
 
                         // del key and nodes
-                        curVal.forEach((item) => {
-                            if (!(item.config.key in tmpKeys)) {
-                                scope[name].lisenters.forEach((lisenter) => {
-                                    lisenter.node.removeChild(scope[name].childs[item.config.key].node);
+                        for (let key in scopeChilds) {
+                            if (scopeChilds.hasOwnProperty(key) && !(key in tmpKeys)) {
+                                scope[name].lisenters.forEach(lisenter => {
+                                    lisenter.node.removeChild(scopeChilds[key].node);
                                 });
-                                delete scope[name].childs[item.config.key];
+
+                                delete scopeChilds[key];
                             }
-                        });
+                        }
                     } else {
-                        cleanDirty(childVariable.config, scope[name].child.scope, scopeStr ? name : scopeStr + "." + name);
+                        let scopeChild = scope[name].child;
+                        if (childVar.template !== scopeChild.template) {
+                            updateTemplate(childVar.template, scopeChild.template);
+                            scopeChild.template = childVar.template;
+                        }
+
+                        let tmpStr = scopeStr ? name : scopeStr + "." + name;
+                        cleanDirty(childVar.config, scopeChild.scope, tmpStr);
                     }
                     continue ;
                 }
 
-                if (name in scope && 
-                        config[name] !== curVal) {
+                if (config[name] === null && scope[name]) {
+                    // remove node
+                    scope[name].lisenters.forEach(lisenter => {
+                        lisenter.node.removeChild(scope[name].child.node);
+                    });
+                    delete scope[name];
+                }
 
+                let curVal = scope[name].currentVal;
+                if (name in scope && config[name] !== curVal) {
                     let lisenters = scope[name].lisenters;
-                    lisenters.forEach((info) => {
-                        if (!info.node) { 
-                            return ;
+                    for (let i = 0, j = 0, len = lisenters.length; i < len; i++) {
+                        let info = lisenters[i - j];
+                        if (!info.node) {
+                            // 移除该节点的监听
+                            j++;
+                            lisenters.splice(i - j, 1);
+                            continue ;
                         }
                         switch (info.type) {
                             case "TEXT": 
@@ -153,10 +179,19 @@ export var Widget = {
                                 break;
                             // no defaults
                         }
-                    });
+                    }
                     scope[name].currentVal = config[name];
                 }
             }
+        }
+
+        function updateTemplate(nTemplate, oTemplate) {
+            console.log("update template");
+        }
+
+        if (this.curTemplate !== nEle.template) {
+            updateTemplate(nEle.template, this.curTemplate);
+            this.curTemplate = nEle.template;
         }
         cleanDirty(nEle.config, this.domLisenters);
     },
@@ -238,9 +273,10 @@ export var Widget = {
             tmp.type = "TEXT";
         }
 
+        var targetScope;
         if (scope) {
             let tmpScope = scope.split(".");
-            let targetScope = tmpScope.reduce((scope, name) => {
+            targetScope = tmpScope.reduce((scope, name) => {
                 var index = name.indexOf("-");
                 if (index > -1) {
                     let parentName = name.slice(0, index);
@@ -250,54 +286,42 @@ export var Widget = {
                     return scope[name].child.scope;
                 }
             }, this.domLisenters);
+        } else {
+            targetScope = this.domLisenters;
+        }
 
-            if (name in targetScope) {
-                targetScope[name].lisenters.push(tmp);
-            } else {
-                targetScope[name] = {
-                    currentVal: val,
-                    lisenters: [tmp]
-                };
+        if (name in targetScope) {
+            targetScope[name].lisenters.push(tmp);
+        } else {
+            if (attr === "PARENT_CHILD") {
                 if (Array.isArray(val)) {
-                    targetScope[name].childs = [];
+                    targetScope[name] = {
+                        lisenters: [tmp],
+                        childs: []
+                    };
                     targetScope[name].childs = val.reduce((obj, item, index) => {
                         obj[item.config.key] = {
-                            node: childNodes[index],
-                            scope: {}
-                        };
-                        return obj;
-                    }, {});
-                } else if (typeof val === "object") {
-                    targetScope[name].child = {
-                        node: childNodes[0],
-                        scope: {}
-                    };
-                }
-            }
-        } else {
-
-            if (name in this.domLisenters) {
-                this.domLisenters[name].lisenters.push(tmp);
-            } else {
-                this.domLisenters[name] = {
-                    currentVal: val,
-                    lisenters: [tmp]
-                };
-                if (Array.isArray(val)) {
-                    this.domLisenters[name].childs = [];
-                    this.domLisenters[name].childs = val.reduce((obj, item, index) => {
-                        obj[item.config.key] = {
+                            template: item.template,
                             node: childNodes[index],
                             scope: {}
                         };
                         return obj;
                     }, {});
                 } else {
-                    this.domLisenters[name].child = {
-                        node: childNodes[0],
-                        scope: {}
+                    targetScope[name] = {
+                        lisenters: [tmp],
+                        child: {
+                            template: val.template,
+                            node: childNodes[0],
+                            scope: {}
+                        }
                     };
                 }
+            } else {
+                targetScope[name] = {
+                    currentVal: val,
+                    lisenters: [tmp]
+                };
             }
         }
     },
@@ -307,8 +331,8 @@ export var Widget = {
 
             var { template:html, config } = this.render();
             if (html) {
-                this.domLisenters = {
-                };
+                this.domLisenters = {};
+                this.curTemplate = html;
                 nodes = parseHTML(html);
                 this._getChange(nodes, config);
                 console.log(this.domLisenters);

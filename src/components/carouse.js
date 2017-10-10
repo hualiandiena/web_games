@@ -4,9 +4,9 @@ import "./Carouse.css";
 
 function PicItem(props) {
     var { className = "", src = "", key } = props;
-    var template =  `<li key="${key}" class="carouse-item {{className}}">
-                        <img src="{{src}}" />
-                    </li>`;
+    var template =  '<li key="' + key + '" class="carouse-item {{className}}">' +
+                        '<img src="{{src}}" />' +
+                    '</li>';
 
     return createElement(template, {
         className,
@@ -17,13 +17,21 @@ function PicItem(props) {
 
 function FooterItem(props) {
     var { className, key } = props;
-    var template = `<li key="${key}" 
-                        class="carouse-foot-item {{className}}" 
-                        value="${key}"></li>`;
+    var template = '<li key="' + key + '"' +
+                        'class="carouse-foot-item {{className}}"' +
+                        'value="' + key + '"></li>';
 
     return createElement(template, {
         className,
         key
+    });
+}
+
+function Test(props) {
+    var aa = "dsftju";
+    var template = "<div>{{aa}}</div>";
+    return createElement(template, {
+        aa
     });
 }
 
@@ -84,12 +92,19 @@ function Carouse(props = {}) {
             }));
         }
 
+        var text = "dsf";
+        var test = Test();
+
         template =  '<div class="carouse-wrapper">' +
+                        '<span>{{text}}</span>' +
+                        '{{test}}' +
                         '<ol class="carouse-content">{{imgList}}</ol>' +
-                        '<ol class="carouse-footer" type="1" start="0">{{footList}}</ol>' + 
+                        '<ol class="carouse-footer" type="1" start="0">' +
+                            '{{footList}}' +
+                        '</ol>' + 
                     '</div>';
 
-        return createElement(template, {imgList, footList});
+        return createElement(template, {imgList, footList, text, test});
     };
 
     return carouse;

@@ -10,6 +10,4 @@ import "./resource/css/layout.css";
 
 var rootEle = document.getElementById("root");
 
-// Carouse({
-//     imgs: [pic1, pic2, pic3, pic4, pic5]
-// }).mount(rootEle);
+App().mount(rootEle);
