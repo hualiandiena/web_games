@@ -3,6 +3,9 @@
 ** widgets.js: a small framework that can help create a Component
 */
 
+
+// 优化点：1.删除dom节点时，移除相关的监听
+
 const SING_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/;
 // const TAG_NAME_REGEXP = /<([\w:-]+)/;
 const XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi;
@@ -11,7 +14,7 @@ const TEMPLATE_REGEXP = /(\s+([\w-]+)\s*="[\w-\s]*|>[^<>]*)\{\{([^{}]+)\}\}/g;
 const TEMPLATE_NODE_VAR = /\{\{([^(?:{{)(?:}})]+)\}\}/;
 const TEMPLATE_ATTR_VAR = /\{\{(\w+)\}\}/g;
 
-const eventTypes = ["click", "change", "mouseup", "mousedown", "mouseover", "mouseout"];
+// const eventTypes = ["click", "change", "mouseup", "mousedown", "mouseover", "mouseout"];
 
 function buildFragment(html) {
     var nodes = [];
@@ -55,7 +58,7 @@ function parseHTML(html) {
 /*
 ** name: mount
 ** params: a dom element which is contain the component; the index of the element'childs
-** functin: mount component to dom
+** function: mount component to dom
 */
 
 /*
@@ -65,7 +68,13 @@ function parseHTML(html) {
 */
 
 export var Widget = {
+    _curTemplate: "",
+    _element: null,
+    _domLisenters: {},
+    _stateCache: [],
     _updateDOM: function(nEle = this.render()) {
+        // 模板改变未处理，嵌入元素未处理
+
         function cleanDirty(config, scope, scopeStr) {
             for (let name in config) {
                 if (!config.hasOwnProperty(name)) {
@@ -79,6 +88,11 @@ export var Widget = {
                 // 未比较模板，模板的差异是直接dom元素替换
                 if (typeof config[name] === "object") {
                     let childVar = config[name];
+                    if (config[name].isPrototypeOf(Widget)) {
+                        console.log("等待处理");
+                        continue;
+                    }
+
                     if (Array.isArray(childVar)) {
                         let tmpKeys = [];
                         let curNode = null;
@@ -189,11 +203,11 @@ export var Widget = {
             console.log("update template");
         }
 
-        if (this.curTemplate !== nEle.template) {
-            updateTemplate(nEle.template, this.curTemplate);
-            this.curTemplate = nEle.template;
+        if (this._curTemplate !== nEle.template) {
+            updateTemplate(nEle.template, this._curTemplate);
+            this._curTemplate = nEle.template;
         }
-        cleanDirty(nEle.config, this.domLisenters);
+        cleanDirty(nEle.config, this._domLisenters);
     },
     _getChange: function(nodes, eleConfig, scope) {
         var dealFn = this._addVaribleListener.bind(this);
@@ -204,13 +218,19 @@ export var Widget = {
                     let nAttrs = node.attributes;
                     Array.prototype.forEach.call(nAttrs, (nAttr) => {
                         var needReplace = false;
+                        var attrName =  nAttr.name;
                         var nVal = nAttr.value.replace(TEMPLATE_ATTR_VAR, function(str, name) {
                             needReplace = true;
-                            dealFn(scope, name, eleConfig[name], node, nAttr.name);
-                            return eleConfig[name];
+                            if (attrName.slice(0, 8) === "data-on-") {
+                                node["on" + attrName.slice(8)] = eleConfig[name];
+                                return name;
+                            } else {
+                                dealFn(scope, name, eleConfig[name], node, attrName);
+                                return eleConfig[name]; 
+                            }
                         });
                         if (needReplace) {
-                            node.setAttribute(nAttr.name, nVal);
+                            node.setAttribute(attrName, nVal);
                         }
                     });
 
@@ -225,6 +245,12 @@ export var Widget = {
                     if (typeof eleVariable === "object") {
                         let parentNode = node.parentNode;
                         let htmlStr = parentNode.innerHTML;
+
+                        if (Widget.isPrototypeOf(eleVariable)) {
+                            parentNode.removeChild(node);
+                            eleVariable.mount(parentNode, key);
+                            return ;
+                        }
 
                         let variableNodes = [];
                         if (Array.isArray(eleVariable)) {
@@ -285,9 +311,9 @@ export var Widget = {
                 } else {
                     return scope[name].child.scope;
                 }
-            }, this.domLisenters);
+            }, this._domLisenters);
         } else {
-            targetScope = this.domLisenters;
+            targetScope = this._domLisenters;
         }
 
         if (name in targetScope) {
@@ -331,13 +357,13 @@ export var Widget = {
 
             var { template:html, config } = this.render();
             if (html) {
-                this.domLisenters = {};
-                this.curTemplate = html;
+                this._domLisenters = {};
+                this._curTemplate = html;
                 nodes = parseHTML(html);
                 this._getChange(nodes, config);
-                console.log(this.domLisenters);
+                console.log(this._domLisenters);
 
-                this.element = [...nodes][0];
+                this._element = [...nodes][0];
 
                 // mount dom
                 if (index && ele.children.length && 
@@ -351,7 +377,7 @@ export var Widget = {
                         ele.appendChild(node);
                     });
                 }
-                this.widgetDidMount(this.element);
+                this.widgetDidMount(this._element);
             }
 
             // init

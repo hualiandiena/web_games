@@ -5,38 +5,40 @@ import Welcome from "./Welcome.js";
 // import style from "./App.css";
 
 export default function App(props = {}) {
-	var app = Object.create(Widget);
+    var app = Object.create(Widget);
 
-	app.state = {
-		logined: true
-	};
+    app.state = {
+        logined: false
+    };
 
-	app.render = function() {
+    app.render = function() {
+        var welcome = app.state.logined ? null : Welcome();
+        var template =  '<div>' +
+                            (app.state.logined ? 
+                            '<nav>' +
+                                '<div></div>' +
+                                '<ul>' +
+                                    '<li>' +
+                                        '<a></i><span>Navigator</span></a>' +
+                                    '</li>' +
+                                    '<li>' +
+                                        '<a><span>GAMES</span></a>' +
+                                    '</li>' +
+                                    '<li>' +
+                                        '<a><span>User</span></a>' +
+                                    '</li>' +
+                                '</ul>' +
+                                '<div></div>' +
+                            '</nav>' +
+                            '<main>' +
+                            '</main>' : 
+                            '{{welcome}}') +
+                        '</div>';
 
-		var welcome = !app.state.logined ? Welcome() : null;
-		var template =  '<div>' +
-							app.state.logined ? 
-							('<nav>' +
-								'<div></div>' +
-								'<ul>' +
-									'<li>' +
-										'<a></i><span>Navigator</span></a>' +
-									'</li>' +
-									'<li>' +
-										'<a><span>GAMES</span></a>' +
-									'</li>' +
-									'<li>' +
-										'<a><span>User</span></a>' +
-									'</li>' +
-								'</ul>' +
-								'<div></div>' +
-							'</nav>' +
-							'<main>' +
-							'</main>') : '{{welcome}}' +
-						'</div>';
+        return createElement(template, {
+            welcome
+        });
+    };
 
-		return createElement(template, {});
-	};
-
-	return app;
+    return app;
 }

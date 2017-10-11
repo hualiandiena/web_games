@@ -1,30 +1,42 @@
 import { Widget, createElement } from "../widgets.js";
 
-import style from "./Welcome.css";
+// import style from "./Welcome.css";
 
-export function Welcome(props = {}) {
-	var welcome = Object.create(Widget);
+export default function Welcome(props = {}) {
+    var welcome = Object.create(Widget);
 
-	welcome.state = {
-		action: 0
-	};
+    welcome.state = {
+        action: 0
+    };
 
-	welcome.render = function() {
-		var template =  '<div>' +
-							this.state.action === 1 ? 
-							'{{login}}' : this.state.action === 2 ?
-							'{{register}}' :
-							('<div></div>' +
-							'<div>' +
-								'<button type="button"></button>' +
-								'<button type="button"></button>' +
-							'</div>') +
-						'</div>';
+    welcome.toggleToLogin = function(ev) {
+        console.log(ev);
+    };
 
-		return createElement(template, {
+    welcome.toggleToSignUp = function(ev) {
+        console.log(3);
+    };
 
-		});
-	};
+    welcome.render = function() {
+        var template =  '<div>' +
+                            (this.state.action === 1 ? 
+                            '{{login}}' : (this.state.action === 2 ?
+                            '{{register}}' :
+                            '<div>' +
+                                '<svg></svg>' +
+                                '<span>Paradise</span>' +
+                            '</div>' +
+                            '<div>' +
+                                '<button data-on-click="{{toggleToLogin}}"><span>Login</span></button>' +
+                                '<button data-on-click="{{toggleToSignUp}}"><span>SignUp</span></button>' +
+                            '</div>')) +
+                        '</div>';
 
-	return welcome;
+        return createElement(template, {
+            toggleToLogin: this.toggleToLogin.bind(this),
+            toggleToSignUp: this.toggleToSignUp.bind(this)
+        });
+    };
+
+    return welcome;
 }
