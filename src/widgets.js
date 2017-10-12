@@ -104,7 +104,7 @@ export var Widget = {
                                 curNode = scopeChilds[itemKey].node;
 
                                 if (item.template !== scopeChilds[itemKey].template) {
-                                    updateTemplate(item.template, scopeChilds[itemKey].template);
+                                    // this._updateTemplate(item, scopeChilds[itemKey]);
                                     scopeChilds[itemKey] = item.template;
                                 }
 
@@ -124,7 +124,7 @@ export var Widget = {
                                     node: newNodes[0],
                                     scope: {}
                                 };
-                                this._getChange(newNodes, item.conifg, scopeStr);
+                                // this._getChange(newNodes, item.conifg, scopeStr);
 
                                 let nextNode = curNode.nextSibling;
                                 if (nextNode) {
@@ -148,7 +148,7 @@ export var Widget = {
                     } else {
                         let scopeChild = scope[name].child;
                         if (childVar.template !== scopeChild.template) {
-                            updateTemplate(childVar.template, scopeChild.template);
+                            this._updateTemplate(childVar, scopeChild);
                             scopeChild.template = childVar.template;
                         }
 
@@ -199,15 +199,52 @@ export var Widget = {
             }
         }
 
-        function updateTemplate(nTemplate, oTemplate) {
-            console.log("update template");
-        }
-
         if (this._curTemplate !== nEle.template) {
-            updateTemplate(nEle.template, this._curTemplate);
+            this._updateTemplate(nEle, {
+                template: this._curTemplate,
+                node: this._element,
+                scope: this._domLisenters
+            });
             this._curTemplate = nEle.template;
         }
         cleanDirty(nEle.config, this._domLisenters);
+    },
+    _updateTemplate: function(nInfo, oInfo) {
+        console.log("update template");
+        // 目前只处理子节点替换的情况
+
+        var { template:nTemplate, config } = nInfo;
+        var { template: oTemplate, node: curNode, scope } = oInfo;
+        var nElement = parseHTML(nTemplate)[0];
+        var oElement = parseHTML(oTemplate)[0];
+
+        function replaceTemplateNode(nElement, oElement, node) {
+            if (nElement.nodeType !== oElement.nodeType ||
+                (nElement.nodeType === 3 && nElement.nodeValue !== oElement.nodeValue) ||
+                (nElement.nodeType === 1 && nElement.nodeName !== oElement.nodeName) ||
+                nElement.childNodes.length !== oElement.childNodes.length
+                ) {
+                this._getChange([nElement], config);
+                node.parentNode.replaceChild(nElement, node);
+
+                return;
+            }
+
+            var offset = 0;
+            nElement.childNodes.forEach((node, key) => {
+                var oNode = oElement.childNodes[key];
+                var name;
+                if (oElement.nodeType === 3 && TEMPLATE_NODE_VAR.test(oElement.nodeValue)) {
+                    name = oElement.nodeValue.slice(2, -2);
+                    if (Array.isArray(config[name])) {
+                        offset = offset + scope[name].childs.length;
+                    }
+                }
+                replaceTemplateNode.call(this, node, oNode, node.childNodes[key + offset]);
+            });
+        }
+
+        replaceTemplateNode.call(this, nElement, oElement, curNode);
     },
     _getChange: function(nodes, eleConfig, scope) {
         var dealFn = this._addVaribleListener.bind(this);

@@ -11,10 +11,19 @@ export default function App(props = {}) {
         logined: false
     };
 
+    app.widgetDidMount = function() {
+        var fn = function() {
+            this.setState({
+                logined: true
+            });
+        };
+        setTimeout(fn.bind(this), 2000);
+    };
+
     app.render = function() {
         var welcome = app.state.logined ? null : Welcome();
-        var template =  '<div>' +
-                            (app.state.logined ? 
+        var template = (app.state.logined ? 
+                        '<div>' +
                             '<nav>' +
                                 '<div></div>' +
                                 '<ul>' +
@@ -31,9 +40,9 @@ export default function App(props = {}) {
                                 '<div></div>' +
                             '</nav>' +
                             '<main>' +
-                            '</main>' : 
-                            '{{welcome}}') +
-                        '</div>';
+                            '</main>' +
+                        '</div>' : 
+                        '<div>{{welcome}}</div>')
 
         return createElement(template, {
             welcome

@@ -17,6 +17,10 @@ export default function Welcome(props = {}) {
         console.log(3);
     };
 
+    welcome.widgetDidMount = function() {
+        
+    };
+
     welcome.render = function() {
         var template =  '<div>' +
                             (this.state.action === 1 ? 
