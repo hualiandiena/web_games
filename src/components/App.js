@@ -12,12 +12,12 @@ export default function App(props = {}) {
     };
 
     app.widgetDidMount = function() {
-        var fn = function() {
-            this.setState({
-                logined: true
-            });
-        };
-        setTimeout(fn.bind(this), 2000);
+        // var fn = function() {
+        //     this.setState({
+        //         logined: true
+        //     });
+        // };
+        // setTimeout(fn.bind(this), 2000);
     };
 
     app.render = function() {
@@ -25,19 +25,10 @@ export default function App(props = {}) {
         var template = (app.state.logined ? 
                         '<div>' +
                             '<nav>' +
-                                '<div></div>' +
                                 '<ul>' +
-                                    '<li>' +
-                                        '<a></i><span>Navigator</span></a>' +
-                                    '</li>' +
-                                    '<li>' +
-                                        '<a><span>GAMES</span></a>' +
-                                    '</li>' +
-                                    '<li>' +
-                                        '<a><span>User</span></a>' +
-                                    '</li>' +
+                                    '<li><span>Menu</span></li>' +
+                                    '<li><span>Entertainment</span></li>' +
                                 '</ul>' +
-                                '<div></div>' +
                             '</nav>' +
                             '<main>' +
                             '</main>' +

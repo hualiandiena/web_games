@@ -73,7 +73,6 @@ export var Widget = {
     _domLisenters: {},
     _stateCache: [],
     _updateDOM: function(nEle = this.render()) {
-        // 模板改变未处理，嵌入元素未处理
 
         function cleanDirty(config, scope, scopeStr) {
             for (let name in config) {
@@ -218,7 +217,7 @@ export var Widget = {
         var nElement = parseHTML(nTemplate)[0];
         var oElement = parseHTML(oTemplate)[0];
 
-        function replaceTemplateNode(nElement, oElement, node) {
+        function DiffTemplate() {
             if (nElement.nodeType !== oElement.nodeType ||
                 (nElement.nodeType === 3 && nElement.nodeValue !== oElement.nodeValue) ||
                 (nElement.nodeType === 1 && nElement.nodeName !== oElement.nodeName) ||
@@ -227,7 +226,14 @@ export var Widget = {
                 this._getChange([nElement], config);
                 node.parentNode.replaceChild(nElement, node);
 
-                return;
+                return true;
+            }
+            return false;
+        }
+
+        function replaceTemplateNode(nElement, oElement, node) {
+            if (DiffTemplate(nElement, oElement, node)) {
+                return ;
             }
 
             var offset = 0;
@@ -244,7 +250,14 @@ export var Widget = {
             });
         }
 
-        replaceTemplateNode.call(this, nElement, oElement, curNode);
+        //根节点替换特殊处理
+        if (DiffTemplate(nElement, oElement, curNode)) {
+            curNode = nElement;
+        } else {
+            replaceTemplateNode.call(this, nElement, oElement, curNode);
+        }
+        
+        oElement = null;
     },
     _getChange: function(nodes, eleConfig, scope) {
         var dealFn = this._addVaribleListener.bind(this);
