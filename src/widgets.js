@@ -217,7 +217,7 @@ export var Widget = {
         var nElement = parseHTML(nTemplate)[0];
         var oElement = parseHTML(oTemplate)[0];
 
-        function DiffTemplate() {
+        function DiffTemplate(nElement, oElement, node) {
             if (nElement.nodeType !== oElement.nodeType ||
                 (nElement.nodeType === 3 && nElement.nodeValue !== oElement.nodeValue) ||
                 (nElement.nodeType === 1 && nElement.nodeName !== oElement.nodeName) ||
@@ -232,7 +232,7 @@ export var Widget = {
         }
 
         function replaceTemplateNode(nElement, oElement, node) {
-            if (DiffTemplate(nElement, oElement, node)) {
+            if (DiffTemplate.bind(this)(nElement, oElement, node)) {
                 return ;
             }
 
@@ -251,7 +251,7 @@ export var Widget = {
         }
 
         //根节点替换特殊处理
-        if (DiffTemplate(nElement, oElement, curNode)) {
+        if (DiffTemplate.bind(this)(nElement, oElement, curNode)) {
             curNode = nElement;
         } else {
             replaceTemplateNode.call(this, nElement, oElement, curNode);

@@ -1,0 +1,26 @@
+:root {
+	--primary-height: 2rem;
+	--primary-width: 5rem;
+	--mm: 0.5rem;
+	--mp: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    :root {
+    	font-size: 28px;
+    }
+}
+@media (max-width: 640px) and (min-width: 350px) {
+    :root {
+    	font-size: 16px;
+    }
+}
+
+button {
+	width: var(--primary-width);
+	padding: 0.3125rem 0.125rem;
+	font-size: 1rem;
+	border: 1px solid;
+	border-radius: 5px;
+	cursor: pointer;
+}

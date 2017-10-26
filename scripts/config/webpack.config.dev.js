@@ -60,6 +60,7 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
+				include: paths.appSrc,
 				use: [
 					"style-loader",
 					{

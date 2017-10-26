@@ -12,17 +12,17 @@ export default function Login(props = {}) {
 
     login.render = function() {
         var template =  '<div>' +
-                            '<h2></h2>' +
+                            '<h2>Paradies</h2>' +
                             '<form>' +
                                 '<div>' + 
                                     '<label>User</label>' +
-                                    '<input type="text" name="user" />' +
+                                    '<input type="text" name="user" maxlength="16" />' +
                                 '</div>' +
                                 '<div>' +
                                     '<label>Password</label>' +
-                                    '<input type="password" name="pwd" />'
+                                    '<input type="password" name="pwd" maxlength="16" />'
                                 '</div>' +
-                                '<button></button>' +
+                                '<button><span>Login</span></button>' +
                                 '<p><a></a></p>'
                             '</form>' +
                             '<footer></footer>' +

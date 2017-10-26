@@ -1,0 +1,86 @@
+.welcome-wrap {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(140deg, #282828, #282828 50%, #8b0000);
+    text-align: center;
+}
+
+.back-animate {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.welcome-content {
+    display: none;
+    margin: auto;
+    z-index: 1;
+}
+#fills * {
+    mix-blend-mode: lighten;
+}
+.svg-i {
+    animation: updown 0.6s ease 0s 1;
+}
+
+.i-dot {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 12.825rem;
+    margin-top: -4.25rem;
+    animation: dot 2s linear 0s 1;
+}
+
+.spread-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.spread-container > .circle {
+    width: 5rem;
+    height: 5rem;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    /*will-change: transform;*/
+    animation: spread 0.6s ease 0s 1;
+    transform-origin: center center;
+}
+
+div.dot{
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: move 0.6s ease 0.2s 1;
+    transform-origin: center center;
+}
+
+div.dot div {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: red;
+    animation: shrink 0.6s linear 0s 1;
+}
+
+.welcome-btn-group {
+    margin-top: 1.25rem;
+}
+.welcome-btn-group button {
+    min-width: 7.5rem;
+    border-color: #fff;
+    color: #fff;
+    background-color: #009cef;
+    font-weight: bold;
+}
+.welcome-btn-group button:first-child {
+    background-color: transparent;
+    margin-right: 3rem;
+}

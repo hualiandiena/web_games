@@ -2,7 +2,7 @@ import { Widget, createElement } from "../widgets.js";
 
 import Welcome from "./Welcome.js";
 
-// import style from "./App.css";
+import "./App.css";
 
 export default function App(props = {}) {
     var app = Object.create(Widget);

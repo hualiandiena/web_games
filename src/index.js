@@ -1,6 +1,7 @@
 import App from "./components/App.js";
 
 import "./resource/css/layout.css";
+import "./resource/css/animations.css";
 
 // import pic1 from "./resource/imgs/timg.jpg";
 // import pic2 from "./resource/imgs/timg3.jpg";
