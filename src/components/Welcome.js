@@ -5,7 +5,7 @@ import "./Welcome.css";
 
 export default function Welcome(props = {}) {
 
-    var rootFontSize = parseInt(getComputedStyle(document.documentElement).fontSize);
+    var rootFontSize = parseInt(getComputedStyle(document.documentElement).fontSize, 10);
     var createBoom = function(root, x, y, fn = function(){}) {
         var dots, copy, backWrap;
         var template = root.querySelector("template");
@@ -39,7 +39,7 @@ export default function Welcome(props = {}) {
         fn(copy);
         backWrap.appendChild(copy);
 
-        copy.querySelector(".circle").addEventListener("animationend", removeAnimate);
+        copy.addEventListener("animationend", removeAnimate);
 
         function removeAnimate(ev) {
             ev.target.removeEventListener("animationend", removeAnimate);
@@ -50,7 +50,7 @@ export default function Welcome(props = {}) {
     var welcome = Object.create(Widget);
 
     welcome.state = {
-        action: 1
+        action: 0
     };
 
     welcome.toggleToLogin = function(ev) {
@@ -110,7 +110,7 @@ export default function Welcome(props = {}) {
     welcome.render = function() {
         var dots = "";
         for (let index = 0; index < 15; index++) {
-            dots += '<div class="dot"><div></div></div>';
+            dots = dots + '<div class="dot"><div></div></div>';
         }
         var login = this.state.action === 1 ? Login() : null;
 
@@ -195,7 +195,7 @@ export default function Welcome(props = {}) {
                 '</div>' +
                 '<template>' +
                     '<div class="spread-container">' +
-                        '<div class="circle"></div>' +
+                        // '<div class="circle"></div>' +
                         dots +
                     '</div>' +
                 '</template>' +

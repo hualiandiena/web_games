@@ -44,12 +44,14 @@
     top: 0;
     left: 0;
 }
-.spread-container > .circle {
+.spread-container:before {
+    content: "";
+    display: block;
     width: 5rem;
     height: 5rem;
     border: 1px solid #fff;
     border-radius: 50%;
-    /*will-change: transform;*/
+    will-change: transform;
     animation: spread 0.6s ease 0s 1;
     transform-origin: center center;
 }
