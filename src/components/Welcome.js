@@ -50,7 +50,7 @@ export default function Welcome(props = {}) {
     var welcome = Object.create(Widget);
 
     welcome.state = {
-        action: 0
+        action: 1
     };
 
     welcome.toggleToLogin = function(ev) {

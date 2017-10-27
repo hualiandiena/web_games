@@ -16,6 +16,10 @@
     }
 }
 
+html {
+	font-family: sans-serif;
+}
+
 button {
 	width: var(--primary-width);
 	padding: 0.3125rem 0.125rem;
@@ -23,4 +27,27 @@ button {
 	border: 1px solid;
 	border-radius: 5px;
 	cursor: pointer;
+}
+
+/*1px 线条是固定的大小*/
+.form-group {
+	text-align: center;
+	margin-bottom: 0.9375rem;
+}
+.form-group input {
+	height: 1.875rem;
+	width: 80%;
+	padding: 0;
+	border: 1px solid #d1d5da;
+	border-radius: 2px;
+	font-weight: bold;
+	text-indent: 0.3125rem;
+}
+
+.icon {
+	display: inline-block;
+	width: 1.25rem;
+	height: 1.25rem;
+	margin-right: 0.75rem;
+	vertical-align: middle;
 }

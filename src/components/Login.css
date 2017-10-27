@@ -1,0 +1,19 @@
+.login-container {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	text-align: center;
+}
+
+
+.login-form {
+	margin: auto;
+	text-align: center;
+	padding: 0 1.25rem;
+}
+.login-form .form-group {
+	border-bottom: 1px solid #8b7355;
+}
+.login-form .form-group input {
+	border-color: transparent;
+}
