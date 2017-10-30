@@ -3,6 +3,7 @@
 	--primary-width: 5rem;
 	--mm: 0.5rem;
 	--mp: 0.5rem;
+	--cube-half-size: 1.5rem;
 }
 
 @media (min-width: 640px) {
@@ -33,15 +34,18 @@ button {
 .form-group {
 	text-align: center;
 	margin-bottom: 0.9375rem;
+	display: flex;
 }
 .form-group input {
-	height: 1.875rem;
-	width: 80%;
+	box-sizing: border-box;
+	height: 2rem;
 	padding: 0;
 	border: 1px solid #d1d5da;
 	border-radius: 2px;
+	outline-color: transparent;
 	font-weight: bold;
 	text-indent: 0.3125rem;
+	flex-grow: 1;
 }
 
 .icon {
@@ -50,4 +54,46 @@ button {
 	height: 1.25rem;
 	margin-right: 0.75rem;
 	vertical-align: middle;
+}
+
+.logo {
+	position: absolute;
+	transform-style: preserve-3d;
+	transform-origin: var(--cube-half-size) var(--cube-half-size);
+	transform: rotateX(30deg) rotateY(45deg);
+	top: 50%;
+	left: 50%;
+	margin-top: calc(0rem - var(--cube-half-size));
+	margin-left: calc(0rem - var(--cube-half-size));
+	animation: slowspin 6s ease-in-out 2s infinite;
+}
+
+.logo span {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	width: 3rem;
+	height: 3rem;
+	background-color: #6e8b23;
+	border: 1px solid #698b22;
+	opacity: 0.6;
+}
+.logo span:nth-child(1) {
+	transform: translateZ(var(--cube-half-size));
+}
+.logo span:nth-child(2) {
+	transform: translateZ(calc(0rem - var(--cube-half-size))) rotateX(180deg);
+}
+.logo span:nth-child(3) {
+	transform: translateY(calc(0rem - var(--cube-half-size))) rotateX(90deg);
+}
+.logo span:nth-child(4) {
+	transform: translateY(var(--cube-half-size)) rotateX(-90deg);
+}
+.logo span:nth-child(5) {
+	transform: translateX(calc(0rem - var(--cube-half-size))) rotateY(90deg);
+}
+.logo span:nth-child(6) {
+	transform: translateX(var(--cube-half-size)) rotateY(-90deg);
 }

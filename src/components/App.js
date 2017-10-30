@@ -11,6 +11,12 @@ export default function App(props = {}) {
         logined: false
     };
 
+    app.doLogin = function() {
+        this.setState({
+            logined: true
+        });
+    };
+
     app.widgetDidMount = function() {
         // var fn = function() {
         //     this.setState({
@@ -21,7 +27,9 @@ export default function App(props = {}) {
     };
 
     app.render = function() {
-        var welcome = app.state.logined ? null : Welcome();
+        var welcome = app.state.logined ? null : Welcome({
+            doLogin: this.doLogin.bind(this)
+        });
         var template = (app.state.logined ? 
                         '<div>' +
                             '<nav>' +

@@ -13,15 +13,26 @@ export default function Login(props = {}) {
     };
 
     login.render = function() {
+        var { doLogin, toggleToSignUp } = props;
         var template =  '<div class="login-container">' +
-            '<h2>Paradies</h2>' +
-            '<form class="login-form">' +
+            '<h2>Welcome</h2>' +
+            '<form class="login-form" novalidate>' +
+                '<div class="login-logo-wrap">' +
+                    '<div class="logo">' +
+                        '<span></span>' +
+                        '<span></span>' +
+                        '<span></span>' +
+                        '<span></span>' +
+                        '<span></span>' +
+                        '<span></span>' +
+                    '</div>'+
+                '</div>' +
                 '<div class="form-group">' + 
                     '<label><svg class="icon">' +
                         '<use href="' + svg +'#pd-user" /></svg>' +
                     '</label>' +
                     '<input type="text" name="user" ' +
-                        'placeholder="Username/Email" maxlength="16" />' +
+                        'placeholder="Username/Email" maxlength="32" />' +
                 '</div>' +
                 '<div class="form-group">' +
                     '<label>' +
@@ -30,15 +41,20 @@ export default function Login(props = {}) {
                         '</svg>' +
                     '</label>' +
                     '<input type="password" name="pwd" ' +
-                        'placeholder="Password" maxlength="16" />'
+                        'placeholder="Password" maxlength="32" />' +
                 '</div>' +
-                '<button><span>Login</span></button>' +
-                '<p><a></a></p>'
+                '<div><button type="submit" data-on-click="{{doLogin}}">Login</button></div>' +
             '</form>' +
-            '<footer></footer>' +
+            '<footer>' +
+                '<a data-on-click="{{toggleToSignUp}}">Sign up</a>' +
+                '<a>Forgot password?</a>' +
+            '</footer>' +
         '</div>';
 
-        return createElement(template, {});
+        return createElement(template, {
+            doLogin,
+            toggleToSignUp
+        });
     }
 
     return login;

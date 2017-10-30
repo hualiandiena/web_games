@@ -217,7 +217,7 @@ export var Widget = {
         var nElement = parseHTML(nTemplate)[0];
         var oElement = parseHTML(oTemplate)[0];
 
-        function DiffTemplate(nElement, oElement, node) {
+        function diffTemplate(nElement, oElement, node) {
             if (nElement.nodeType !== oElement.nodeType ||
                 (nElement.nodeType === 3 && nElement.nodeValue !== oElement.nodeValue) ||
                 (nElement.nodeType === 1 && nElement.nodeName !== oElement.nodeName) ||
@@ -232,12 +232,12 @@ export var Widget = {
         }
 
         function replaceTemplateNode(nElement, oElement, node) {
-            if (DiffTemplate.bind(this)(nElement, oElement, node)) {
+            if (diffTemplate.bind(this)(nElement, oElement, node)) {
                 return ;
             }
 
             var offset = 0;
-            nElement.childNodes.forEach((node, key) => {
+            nElement.childNodes.forEach((nNode, key) => {
                 var oNode = oElement.childNodes[key];
                 var name;
                 if (oElement.nodeType === 3 && TEMPLATE_NODE_VAR.test(oElement.nodeValue)) {
@@ -246,12 +246,12 @@ export var Widget = {
                         offset = offset + scope[name].childs.length;
                     }
                 }
-                replaceTemplateNode.call(this, node, oNode, node.childNodes[key + offset]);
+                replaceTemplateNode.call(this, nNode, oNode, node.childNodes[key + offset]);
             });
         }
 
         //根节点替换特殊处理
-        if (DiffTemplate.bind(this)(nElement, oElement, curNode)) {
+        if (diffTemplate.bind(this)(nElement, oElement, curNode)) {
             curNode = nElement;
         } else {
             replaceTemplateNode.call(this, nElement, oElement, curNode);

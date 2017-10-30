@@ -80,3 +80,12 @@
         background-color: #eeee00;
     }
 }
+
+@keyframes slowspin {
+    0% {
+        transform: rotateX(30deg) rotateY(45deg);
+    }
+    20%, 100% {
+        transform: rotateX(30deg) rotateY(225deg);
+    }
+}

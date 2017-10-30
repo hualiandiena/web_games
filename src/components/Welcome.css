@@ -4,7 +4,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(140deg, #282828, #282828 50%, #8b0000);
+    background: linear-gradient(140deg, #000810, #000810 40%, #521018);
     text-align: center;
 }
 

@@ -60,6 +60,7 @@ export default function Welcome(props = {}) {
     };
 
     welcome.toggleToSignUp = function(ev) {
+        console.log(1);
         this.setState({
             action: 2
         });
@@ -112,7 +113,10 @@ export default function Welcome(props = {}) {
         for (let index = 0; index < 15; index++) {
             dots = dots + '<div class="dot"><div></div></div>';
         }
-        var login = this.state.action === 1 ? Login() : null;
+        var login = this.state.action === 1 ? Login({
+            doLogin: props.doLogin,
+            toggleToSignUp: this.toggleToSignUp.bind(this)
+        }) : null;
 
         var template =  
             (this.state.action === 1 ? 
