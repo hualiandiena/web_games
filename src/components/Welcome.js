@@ -1,6 +1,7 @@
 import { Widget, createElement } from "../widgets.js";
 
 import Login from "./Login.js";
+import Register from "./Register.js";
 import "./Welcome.css";
 
 export default function Welcome(props = {}) {
@@ -50,7 +51,7 @@ export default function Welcome(props = {}) {
     var welcome = Object.create(Widget);
 
     welcome.state = {
-        action: 1
+        action: 0
     };
 
     welcome.toggleToLogin = function(ev) {
@@ -60,7 +61,6 @@ export default function Welcome(props = {}) {
     };
 
     welcome.toggleToSignUp = function(ev) {
-        console.log(1);
         this.setState({
             action: 2
         });
@@ -113,13 +113,17 @@ export default function Welcome(props = {}) {
         for (let index = 0; index < 15; index++) {
             dots = dots + '<div class="dot"><div></div></div>';
         }
+
         var login = this.state.action === 1 ? Login({
             doLogin: props.doLogin,
             toggleToSignUp: this.toggleToSignUp.bind(this)
         }) : null;
 
-        var template =  
-            (this.state.action === 1 ? 
+        var register = this.state.action === 2 ? Register({
+            doSignUp: props.doSignUp
+        }) : null;
+
+        var template = (this.state.action === 1 ? 
             '<div>{{login}}</div>' : (this.state.action === 2 ?
             '<div>{{register}}</div>' :
             '<div class="welcome-wrap">' +
@@ -193,7 +197,7 @@ export default function Welcome(props = {}) {
                             '<span>Login</span>' +
                         '</button>' +
                         '<button data-on-click="{{toggleToSignUp}}">' +
-                            '<span>SignUp</span>' +
+                            '<span>Sign up</span>' +
                         '</button>' +
                     '</div>' +
                 '</div>' +
@@ -207,6 +211,7 @@ export default function Welcome(props = {}) {
 
         return createElement(template, {
             login,
+            register,
             toggleToLogin: this.toggleToLogin.bind(this),
             toggleToSignUp: this.toggleToSignUp.bind(this)
         });

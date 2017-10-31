@@ -17,6 +17,12 @@ export default function App(props = {}) {
         });
     };
 
+    app.doSignUp = function() {
+        this.setState({
+            logined: true
+        });
+    };
+
     app.widgetDidMount = function() {
         // var fn = function() {
         //     this.setState({
@@ -28,7 +34,8 @@ export default function App(props = {}) {
 
     app.render = function() {
         var welcome = app.state.logined ? null : Welcome({
-            doLogin: this.doLogin.bind(this)
+            doLogin: this.doLogin.bind(this),
+            doSignUp: this.doSignUp.bind(this)
         });
         var template = (app.state.logined ? 
                         '<div>' +

@@ -217,22 +217,39 @@ export var Widget = {
         var nElement = parseHTML(nTemplate)[0];
         var oElement = parseHTML(oTemplate)[0];
 
-        function diffTemplate(nElement, oElement, node) {
+        function diffTemplate(nElement, oElement, node, key) {
+            var configVar, parentNode;
+
             if (nElement.nodeType !== oElement.nodeType ||
                 (nElement.nodeType === 3 && nElement.nodeValue !== oElement.nodeValue) ||
                 (nElement.nodeType === 1 && nElement.nodeName !== oElement.nodeName) ||
                 nElement.childNodes.length !== oElement.childNodes.length
                 ) {
-                this._getChange([nElement], config);
-                node.parentNode.replaceChild(nElement, node);
+                if (nElement.nodeType === 3) {
+                    configVar = config[nElement.nodeValue.slice(2, -2)];
+                    parentNode = nElement.parentNode;
+                    this._getChange([parentNode], config);
+                    if (Array.isArray(configVar)) {
+                        for (let index, len = configVar.length; index < len; index++) {
+                            node.parentNode.inserBefore(parentNode.childNodes[key + index], node);
+                        }
+                        node.parentNode.removeChild(node);
+                    }else {
+                        node.parentNode.replaceChild(parentNode.childNodes[key], node);
+                    }
+                }else {
+                    this._getChange([nElement], config);
+                    node.parentNode.replaceChild(nElement, node);
+                }
+                
 
                 return true;
             }
             return false;
         }
 
-        function replaceTemplateNode(nElement, oElement, node) {
-            if (diffTemplate.bind(this)(nElement, oElement, node)) {
+        function replaceTemplateNode(nElement, oElement, node, key) {
+            if (diffTemplate.bind(this)(nElement, oElement, node, key)) {
                 return ;
             }
 
@@ -240,19 +257,19 @@ export var Widget = {
             nElement.childNodes.forEach((nNode, key) => {
                 var oNode = oElement.childNodes[key];
                 var name;
-                if (oElement.nodeType === 3 && TEMPLATE_NODE_VAR.test(oElement.nodeValue)) {
-                    name = oElement.nodeValue.slice(2, -2);
+                if (oNode.nodeType === 3 && TEMPLATE_NODE_VAR.test(oNode.nodeValue)) {
+                    name = oNode.nodeValue.slice(2, -2);
                     if (Array.isArray(config[name])) {
                         offset = offset + scope[name].childs.length;
                     }
                 }
-                replaceTemplateNode.call(this, nNode, oNode, node.childNodes[key + offset]);
+                replaceTemplateNode.call(this, nNode, oNode, node.childNodes[key + offset], key);
             });
         }
 
         //根节点替换特殊处理
         if (diffTemplate.bind(this)(nElement, oElement, curNode)) {
-            curNode = nElement;
+            this._element = nElement;
         } else {
             replaceTemplateNode.call(this, nElement, oElement, curNode);
         }

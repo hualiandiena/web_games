@@ -31,19 +31,23 @@ export default function Login(props = {}) {
                     '<label><svg class="icon">' +
                         '<use href="' + svg +'#pd-user" /></svg>' +
                     '</label>' +
-                    '<input type="text" name="user" ' +
+                    '<input type="text" name="name" ' +
                         'placeholder="Username/Email" maxlength="32" />' +
                 '</div>' +
                 '<div class="form-group">' +
                     '<label>' +
                         '<svg class="icon">' +
-                            '<use href="' + svg +'#pd-key" />' +
+                            '<use href="' + svg +'#pd-locked" />' +
                         '</svg>' +
                     '</label>' +
                     '<input type="password" name="pwd" ' +
                         'placeholder="Password" maxlength="32" />' +
                 '</div>' +
-                '<div><button type="submit" data-on-click="{{doLogin}}">Login</button></div>' +
+                '<div>' +
+                    '<button type="submit" ' +
+                        'class="btn-sbumit" ' +
+                        'data-on-click="{{doLogin}}">Login</button>' +
+                '</div>' +
             '</form>' +
             '<footer>' +
                 '<a data-on-click="{{toggleToSignUp}}">Sign up</a>' +
