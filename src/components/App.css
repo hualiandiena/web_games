@@ -36,6 +36,50 @@ body {
 	height: 100%;
 }
 
+
+/*logo*/
+.logo {
+	position: absolute;
+	transform-style: preserve-3d;
+	transform-origin: var(--cube-half-size) var(--cube-half-size);
+	transform: rotateX(30deg) rotateY(45deg);
+	top: 50%;
+	left: 50%;
+	margin-top: calc(0rem - var(--cube-half-size));
+	margin-left: calc(0rem - var(--cube-half-size));
+	animation: slowspin 6s ease-in-out 2s infinite;
+}
+.logo span {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	width: 3rem;
+	height: 3rem;
+	background-color: #6e8b23;
+	border: 1px solid #698b22;
+	opacity: 0.6;
+}
+.logo span:nth-child(1) {
+	transform: translateZ(var(--cube-half-size));
+}
+.logo span:nth-child(2) {
+	transform: translateZ(calc(0rem - var(--cube-half-size))) rotateX(180deg);
+}
+.logo span:nth-child(3) {
+	transform: translateY(calc(0rem - var(--cube-half-size))) rotateX(90deg);
+}
+.logo span:nth-child(4) {
+	transform: translateY(var(--cube-half-size)) rotateX(-90deg);
+}
+.logo span:nth-child(5) {
+	transform: translateX(calc(0rem - var(--cube-half-size))) rotateY(90deg);
+}
+.logo span:nth-child(6) {
+	transform: translateX(var(--cube-half-size)) rotateY(-90deg);
+}
+
+/*global widget*/
 button {
 	width: var(--primary-width);
 	padding: 0.3125rem 0.125rem;
@@ -74,7 +118,26 @@ button.btn-sbumit:focus {
 	outline: transparent;
 }
 
+.icon {
+	display: inline-block;
+	width: 1.25rem;
+	height: 1.25rem;
+	margin-right: 0.75rem;
+	vertical-align: middle;
+}
+
+.dropdown-caret {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border: 0.25rem solid;
+	border-bottom-color: transparent;
+	border-left-color: transparent;
+	border-right-color: transparent;
+}
+
 /*1px 线条是固定的大小*/
+/*form field*/
 .form-group {
 	text-align: center;
 	margin-bottom: 0.9375rem;
@@ -98,52 +161,30 @@ button.btn-sbumit:focus {
 	flex-grow: 1;
 }
 
-.icon {
-	display: inline-block;
-	width: 1.25rem;
-	height: 1.25rem;
-	margin-right: 0.75rem;
-	vertical-align: middle;
+/*nav*/
+.app-nav {
+	padding: 0.625rem;
 }
-
-.logo {
-	position: absolute;
-	transform-style: preserve-3d;
-	transform-origin: var(--cube-half-size) var(--cube-half-size);
-	transform: rotateX(30deg) rotateY(45deg);
-	top: 50%;
-	left: 50%;
-	margin-top: calc(0rem - var(--cube-half-size));
-	margin-left: calc(0rem - var(--cube-half-size));
-	animation: slowspin 6s ease-in-out 2s infinite;
-}
-
-.logo span {
-	position: absolute;
-	top: 0;
-	left: 0;
+.avatar {
 	display: block;
-	width: 3rem;
-	height: 3rem;
-	background-color: #6e8b23;
-	border: 1px solid #698b22;
-	opacity: 0.6;
 }
-.logo span:nth-child(1) {
-	transform: translateZ(var(--cube-half-size));
+.avatar img {
+	display: inline-block;
+	height: 1.5625rem;
+	width: 1.5625rem;
+	vertical-align: middle;
+	border-radius: 0.3125rem;
+	border: 1px solid #CDB38B;
 }
-.logo span:nth-child(2) {
-	transform: translateZ(calc(0rem - var(--cube-half-size))) rotateX(180deg);
+
+.flex-between {
+	display: flex;
+	justify-content: space-between;
 }
-.logo span:nth-child(3) {
-	transform: translateY(calc(0rem - var(--cube-half-size))) rotateX(90deg);
-}
-.logo span:nth-child(4) {
-	transform: translateY(var(--cube-half-size)) rotateX(-90deg);
-}
-.logo span:nth-child(5) {
-	transform: translateX(calc(0rem - var(--cube-half-size))) rotateY(90deg);
-}
-.logo span:nth-child(6) {
-	transform: translateX(var(--cube-half-size)) rotateY(-90deg);
+
+.menu-icon span{
+	display: block;
+	width: 0.9375rem;
+	height: 0.0625rem;
+	background-color: #fff;
 }

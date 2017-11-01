@@ -28,7 +28,7 @@ export default function Login(props = {}) {
                     '</div>'+
                 '</div>' +
                 '<div class="form-group">' + 
-                    '<label><svg class="icon">' +
+                    '<label><svg class="icon" width="1.25rem" height="1.25rem">' +
                         '<use href="' + svg +'#pd-user" /></svg>' +
                     '</label>' +
                     '<input type="text" name="name" ' +
@@ -36,7 +36,7 @@ export default function Login(props = {}) {
                 '</div>' +
                 '<div class="form-group">' +
                     '<label>' +
-                        '<svg class="icon">' +
+                        '<svg class="icon" width="1.25rem" height="1.25rem">' +
                             '<use href="' + svg +'#pd-locked" />' +
                         '</svg>' +
                     '</label>' +

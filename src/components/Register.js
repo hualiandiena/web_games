@@ -22,31 +22,41 @@ export default function Register(props = {}) {
                 '<form class="register-form">' +
                     '<div class="form-group">' +
                         '<label>' +
-                            '<svg class="icon"><use href="' + svg + '#pd-user"/></svg>' +
+                            '<svg class="icon" width="1.25rem" height="1.25rem">' +
+                                '<use href="' + svg + '#pd-user"/>' +
+                            '</svg>' +
                         '</label>' +
                         '<input type="text" name="name" placeholder="Username" />' +
                     '</div>' +
                     '<div class="form-group">' +
                         '<label>' +
-                            '<svg class="icon"><use href="' + svg + '#pd-envelope"/></svg>' +
+                            '<svg class="icon" width="1.25rem" height="1.25rem">' +
+                                '<use href="' + svg + '#pd-envelope"/>' +
+                            '</svg>' +
                         '</label>' +
                         '<input type="text" name="email" placeholder="Email" />' +
                     '</div>' +
                     '<div class="form-group">' +
                         '<label>' +
-                            '<svg class="icon"><use href="' + svg + '#pd-locked"/></svg>' +
+                            '<svg class="icon" width="1.25rem" height="1.25rem">' +
+                                '<use href="' + svg + '#pd-locked"/>' +
+                            '</svg>' +
                         '</label>' +
                         '<input type="password" name="pwd" placeholder="Password" />' +
                     '</div>' +
                     '<div class="form-group">' +
                         '<label>' +
-                            '<svg class="icon"><use href="' + svg + '#pd-locked"/></svg>' +
+                            '<svg class="icon" width="1.25rem" height="1.25rem">' +
+                                '<use href="' + svg + '#pd-locked"/>' +
+                            '</svg>' +
                         '</label>' +
                         '<input type="password" name="confirmPwd" placeholder="Confirm Password" />' +
                     '</div>' +
                     '<div class="form-group">' +
                         '<label>' +
-                            '<svg class="icon"><use href="' + svg + '#pd-phone"/></svg>' +
+                            '<svg class="icon" width="1.25rem" height="1.25rem">' +
+                                '<use href="' + svg + '#pd-phone"/>' +
+                            '</svg>' +
                         '</label>' +
                         '<input type="number" name="phone" placeholder="PhoneNumber" />' +
                     '</div>' +
