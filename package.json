@@ -40,7 +40,6 @@
     "postcss": "^6.0.9",
     "postcss-flexbugs-fixes": "^3.2.0",
     "postcss-loader": "^2.0.6",
-    "postcss-loade-config": "1.2.0",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",
     "webpack": "^3.5.5",

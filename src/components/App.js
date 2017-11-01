@@ -42,7 +42,7 @@ export default function App(props = {}) {
                             '<nav>' +
                                 '<ul>' +
                                     '<li><span>Menu</span></li>' +
-                                    '<li><span>Entertainment</span></li>' +
+                                    '<li><span>Paradies</span></li>' +
                                 '</ul>' +
                             '</nav>' +
                             '<main>' +
