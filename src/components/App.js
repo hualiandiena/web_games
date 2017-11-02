@@ -1,10 +1,11 @@
 import { Widget, createElement } from "../widgets.js";
 
 import Welcome from "./Welcome.js";
+import Navigator from "./Navigator.js";
 
 import "./App.css";
 
-import svg from "../resource/symbol-defs.svg";
+// import svg from "../resource/symbol-defs.svg";
 
 export default function App(props = {}) {
     var app = Object.create(Widget);
@@ -45,28 +46,11 @@ export default function App(props = {}) {
             doSignUp: this.doSignUp.bind(this)
         });
 
+        var navigator = app.state.logined  ? Navigator() : null;
+
         var template = (app.state.logined ? 
                         '<div>' +
-                            '<nav class="app-nav">' +
-                                '<ul class="flex-between">' +
-                                    '<li>' +
-                                        '<label class="menu-icon">' +
-                                            '<span></span><span></span>' +
-                                        '</label>' +
-                                    '</li>' +
-                                    '<li><a>' +
-                                        '<svg class="icon" width="1.25rem" height="1.25rem">' +
-                                            '<use href="' + svg + '#pd-skeletor" />' +
-                                        '</svg>' +
-                                    '</a></li>' +
-                                    '<li>' +
-                                        '<span class="avatar">' +
-                                            '<img src="{{avatar}}" width="20" height="20" />' +
-                                            '<span class="dropdown-caret"></span>' +
-                                        '</span>' +
-                                    '</li>'+
-                                '</ul>' +
-                            '</nav>' +
+                            '{{navigator}}' +
                             '<main>' +
                             '</main>' +
                         '</div>' : 
@@ -74,6 +58,7 @@ export default function App(props = {}) {
 
         return createElement(template, {
             welcome,
+            navigator,
             avatar: this.state.avatar
         });
     };

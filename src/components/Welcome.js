@@ -79,14 +79,18 @@ export default function Welcome(props = {}) {
                     var x = ev.touches[0].clientX;
                     var y = ev.touches[0].clientY;
 
-                    createBoom(node, x, y);
+                    if (ev.target.nodeName !== "BUTTON") {
+                        createBoom(node, x, y);
+                    }
                 };
             } else {
                 wrap.onmousedown = function(ev) {
                     var x = ev.clientX;
                     var y = ev.clientY;
 
-                    createBoom(node, x, y);
+                    if (ev.target.nodeName !== "BUTTON") {
+                        createBoom(node, x, y);
+                    }
                 };
             }
 
@@ -194,10 +198,10 @@ export default function Welcome(props = {}) {
                     '</svg>' +
                     '<div class="welcome-btn-group">' +
                         '<button data-on-click="{{toggleToLogin}}">' +
-                            '<span>Login</span>' +
+                            'Login' +
                         '</button>' +
                         '<button data-on-click="{{toggleToSignUp}}">' +
-                            '<span>Sign up</span>' +
+                            'Sign up' +
                         '</button>' +
                     '</div>' +
                 '</div>' +

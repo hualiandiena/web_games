@@ -1,0 +1,93 @@
+/*nav*/
+.app-nav {
+    box-sizing: border-box;
+    position: fixed;
+    width: 100%;
+    height: 3rem;
+    padding: 0.625rem;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.8);
+    color: #F5FFFA;
+    transition: background 0.4s;
+}
+.app-nav.open {
+   height: 100%;
+   background-color: #000;
+}
+
+.avatar {
+    display: block;
+}
+.avatar img {
+    display: inline-block;
+    height: 1.5625rem;
+    width: 1.5625rem;
+    vertical-align: middle;
+    border-radius: 0.3125rem;
+    border: 1px solid #F5FFFA;
+}
+
+.menu-icon {
+    position: relative;
+    display: block;
+    width: 1.5625rem;
+    height: 1.5625rem;
+    /*margin: 0 0.75rem;*/
+}
+.menu-icon > span {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.25s ease-in-out;
+    padding: 0.75rem 0.25rem;
+}
+
+.menu-icon > span:first-child > span {
+    transform: translateY(-0.1875rem);
+}
+.menu-icon > span > span{
+    display: block;
+    width: 1.0625rem;
+    height: 0.0625rem;
+    background-color: #fff;
+    transition: transform 0.2s 0.2s;
+}
+
+.menu-icon > span:last-child > span {
+    transform: translateY(0.1875rem);
+}
+
+.open .menu-icon > span:first-child {
+    transform: rotate(45deg);
+}
+.open .menu-icon > span:last-child {
+    transform: rotate(-45deg);
+}
+.open .menu-icon > span > span {
+    transform: translate(0rem);
+}
+
+/*menu content*/
+.menu-content {
+    position: absolute;
+    top: 3rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    padding: 0 3rem;
+}
+.menu-content li {
+    width: 100%;
+    height: 2.75rem;
+    border-bottom: 1px solid #333;
+}
+.menu-content li:first-child {
+    margin-top: 1.25rem;
+}
+.menu-content li > a{
+    display: block;
+    height: 100%;
+    line-height: 2.5;
+}
