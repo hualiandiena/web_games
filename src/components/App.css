@@ -93,7 +93,7 @@ button:active {
     margin-top: 0.25rem;
 }
 
-button.btn-sbumit {
+.btn-sbumit {
     width: 100%;
     font-size: 1.125rem;
     margin-top: 1.25rem;
@@ -106,7 +106,7 @@ button.btn-sbumit {
         0 0.325rem 0 0 #601A00,
         0 0.5rem 0 0 rgba(0,0,0,0.15);
 }
-button.btn-sbumit:active {
+.btn-sbumit:active {
     margin-top: 1.5rem;
     background-color: #8B5742;
     box-shadow: 0 0 0 0.0625rem #8B3E2F inset, 
@@ -114,15 +114,14 @@ button.btn-sbumit:active {
         0 0.0625rem 0 0 #601A00,
         0 0.1875rem 0 0 rgba(0,0,0,0.15);
 }
-button.btn-sbumit:focus {
+.btn-sbumit:focus {
     outline: transparent;
 }
 
 .icon {
     display: inline-block;
-    width: 1.25rem;
-    height: 1.25rem;
-    /*margin: 0 0.75rem;*/
+    /*width: 1.25rem;
+    height: 1.25rem;*/
     vertical-align: middle;
 }
 
@@ -142,6 +141,7 @@ button.btn-sbumit:focus {
     text-align: center;
     margin-bottom: 0.9375rem;
     display: flex;
+    align-items: center;
 }
 .form-group > label {
     line-height: 2rem;
@@ -160,6 +160,18 @@ button.btn-sbumit:focus {
     font-weight: bold;
     text-indent: 0.3125rem;
     flex-grow: 1;
+}
+
+.input-addon {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    height: 2rem;
+}
+.input-addon + input {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 /*global layout*/

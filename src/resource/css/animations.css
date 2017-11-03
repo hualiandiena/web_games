@@ -89,3 +89,12 @@
         transform: rotateX(30deg) rotateY(225deg);
     }
 }
+
+@keyframes searchShow {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}

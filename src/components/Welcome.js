@@ -197,10 +197,10 @@ export default function Welcome(props = {}) {
                         '</g>' +
                     '</svg>' +
                     '<div class="welcome-btn-group">' +
-                        '<button data-on-click="{{toggleToLogin}}">' +
+                        '<button type="button" data-on-click="{{toggleToLogin}}">' +
                             'Login' +
                         '</button>' +
-                        '<button data-on-click="{{toggleToSignUp}}">' +
+                        '<button type="button" data-on-click="{{toggleToSignUp}}">' +
                             'Sign up' +
                         '</button>' +
                     '</div>' +
