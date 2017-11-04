@@ -15,7 +15,7 @@ const XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([
 
 const TEMPLATE_REGEXP = /(\s+([\w-]+)\s*="[\w-\s]*|>[^<>]*)\{\{([^{}]+)\}\}/g;
 const TEMPLATE_NODE_VAR = /\{\{([^(?:{{)(?:}})]+)\}\}/;
-const TEMPLATE_ATTR_VAR = /\{\{(\w+)\}\}/g;
+const TEMPLATE_ATTR_VAR = /(\s*)\{\{(\w+)\}\}/g;
 
 // const eventTypes = ["click", "change", "mouseup", "mousedown", "mouseover", "mouseout"];
 
@@ -185,11 +185,18 @@ export var Widget = {
                                 break;
                             case "ATTR":
                                 var nVal;
+                                var reg;
                                 var oVal = info.node.getAttribute(info.nAttr);
                                 if (curVal) {
-                                    nVal = oVal.replace(curVal, config[name]);
+                                    if (config[name]) {
+                                        nVal = oVal.replace(curVal, config[name]);
+                                    }else {
+                                        reg = new RegExp("\\s*" + curVal.replace(/\-/g, "\-"));
+                                        nVal = oVal.replace(reg ,"");
+                                    }
+                                    
                                 } else {
-                                    nVal = oVal + config[name];
+                                    nVal = oVal + " " + config[name];
                                 } 
                                 info.node.setAttribute(info.nAttr, nVal);
                                 break;
@@ -289,14 +296,14 @@ export var Widget = {
                     Array.prototype.forEach.call(nAttrs, (nAttr) => {
                         var needReplace = false;
                         var attrName =  nAttr.name;
-                        var nVal = nAttr.value.replace(TEMPLATE_ATTR_VAR, function(str, name) {
+                        var nVal = nAttr.value.replace(TEMPLATE_ATTR_VAR, function(str, prefix, name) {
                             needReplace = true;
                             if (attrName.slice(0, 8) === "data-on-") {
                                 node["on" + attrName.slice(8)] = eleConfig[name];
-                                return name;
+                                return prefix + name;
                             } else {
                                 dealFn(scope, name, eleConfig[name], node, attrName);
-                                return eleConfig[name]; 
+                                return eleConfig[name] ? prefix + eleConfig[name] : ""; 
                             }
                         });
                         if (needReplace) {

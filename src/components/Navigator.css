@@ -5,8 +5,8 @@
     z-index: 99999;
     width: 100%;
     height: 3rem;
-    padding: 0.625rem;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     background-color: rgba(0,0,0,0.8);
     color: #F5FFFA;
     transition: background 0.35s linear, height 0.35s ease-in;
@@ -15,6 +15,23 @@
    height: 100%;
    background-color: #000;
    transition: background 0.35s linear, height 0.35s ease-in 0.2s;
+}
+
+.app-nav button {
+    border-color: #fff;
+}
+
+.app-nav > ul {
+    padding: 0.625rem;
+}
+
+.nav-logo {
+    display: block;
+    transition: transform 0.2s ease-in;
+}
+.search-show .nav-logo,
+.search-open .nav-logo {
+    transform: translateY(-130%);
 }
 
 .open .avatar {
@@ -83,7 +100,6 @@
     right: 0;
     /*height: 100%;*/
     padding: 0 3rem;
-    overflow-y: auto;
 }
 
 /*.menu-content label {
@@ -122,6 +138,9 @@
 }
 .menu-item:nth-child(5) {
     transition-delay: 50ms;
+}
+.menu-item:last-child {
+    padding-bottom: 1.25rem;
 }
 
 .menu-item > a {
@@ -163,21 +182,50 @@
     transition-delay: 450ms;
 }
 
-.search-content {
-    display: none;
-}
-
-.menu-wrap button {
-    border-color: #fff;
-}
-
 .search-show .menu-content {
-    animation: searchShow 0.5s;
+    will-change: transform;
+    animation: searchShow 0.5s ease-in;
 }
-
+.search-hide .menu-content {
+    animation: searchShow 0.5s ease-in reverse;
+}
 .search-open .menu-content {
     display: none;
 }
-.search-show .search-content, .search-open .search-content {
+
+.search-content {
+    display: none;
+}
+.search-show .search-content form,
+.search-hide .search-content form {
+    opacity: 0;
+    /*animation: searchFormShow 1s ease-in 0.7s;*/
+}
+/*.search-hide .search-content form {
+    opacity: 1;
+    animation: searchFormShow 0.2s ease-in 0.1s reverse;
+}*/
+
+.search-open .search-content,
+.search-show .search-content,
+.search-hide .search-content {
     display: block;
 }
+
+.search-close-btn {
+    position: absolute;
+    width: 1.625rem;
+    top: -1.8125rem;
+    left: 50%;
+    margin-left: -0.75rem;
+    opacity: 0;
+}
+.search-open .search-close-btn {
+    opacity: 1;
+}
+/*.search-show .search-close-btn {
+    animation: searchCloseShow 0.5s ease-in;
+}
+.search-hide .search-close-btn {
+    animation: searchCloseShow 0.5s ease-in reverse;
+}*/

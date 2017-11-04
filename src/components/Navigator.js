@@ -9,7 +9,7 @@ export default function Navigator(props = {}) {
 
     navigator.state = {
         menuOpening: false,
-        searchView: false,
+        searchView: 0,
         avatar: ""
     };
 
@@ -17,53 +17,67 @@ export default function Navigator(props = {}) {
         this.setState((oState) => {
             return {
                 menuOpening: !oState.menuOpening,
-                searchView: !oState.menuOpening && !oState.viewSearch
+                searchView: 0 
             };
         });
     };
     navigator.showSearch = function() {
         this.setState({
-            searchView: true
+            searchView: 1
         });
     }
     navigator.hideSearch = function() {
         this.setState({
-            searchView: false
+            searchView: 2
         });
     };
 
     navigator.widgetDidMount = function(node) {
+        var self = this;
         import('../resource/avatars/default.jpg').then((img) => {
-            this.setState({
+            self.setState({
                 avatar: img
             });
         });
 
         // add lisenter
         node.querySelector(".menu-content").addEventListener("animationend", (ev) => {
-            var parent = ev.target.parentNode;
-            if (this.state.searchView) {
-                parent.className = parent.className.replace("search-show", "search-open");
-            } else {
-                parent.className = parent.className.replace(/\s*search\-hide\s*/, "");
-            }
+            self.setState((oState) => {
+                return {
+                    searchView: oState.searchView === 1 ? 3 : 0
+                };
+            });
         });
     };
 
     navigator.render = function() {
         var searchState = "";
-        if (this.state.menuOpening) {
-            searchState = this.state.searchView ? "search-show" : "search-hide";
+
+        switch (this.state.searchView) {
+            case 0: 
+                searchState = "";
+                break;
+            case 1:
+                searchState = "search-show";
+                break;
+            case 2:
+                searchState = "search-hide";
+                break;
+            case 3:
+                searchState = "search-open";
+                break;
+
+            // no defaults
         }
         
-        var template = '<nav class="app-nav {{open}}">' +
+        var template = '<nav class="app-nav {{open}} {{searchState}}">' +
             '<ul class="flex-between">' +
                 '<li>' +
                     '<label class="menu-icon" data-on-click="{{openCloseMenu}}">' +
                         '<span><span></span></span>' +
                         '<span><span></span></span>' +
                     '</label>' +
-                    '<div class="menu-wrap {{searchState}}">' +
+                    '<div class="menu-wrap">' +
                         '<ul class="menu-content">' +
                             // '<label></label>' +
                             '<li class="menu-item"><a>ENTERTAINMENT</a></li>' +
@@ -88,13 +102,13 @@ export default function Navigator(props = {}) {
                                     '<input type="text" placeholder="Quick Search" />' +
                                 '</div>' +
                             '</form>' +
-                            '<button>' +
+                            '<button class="search-close-btn btn-icon" data-on-click="{{hideSearch}}">' +
                                 '<span class="arrow"><span></span><span></span></span>' +
                             '</button>' +
                         '</aside>' +
                     '</div>' +
                 '</li>' +
-                '<li><a>' +
+                '<li><a class="nav-logo">' +
                     '<svg class="icon" width="1.625rem" height="1.625rem" fill="#F5FFFA">' +
                         '<use href="' + svg + '#pd-skeletor" />' +
                     '</svg>' +
@@ -112,6 +126,7 @@ export default function Navigator(props = {}) {
             avatar: this.state.avatar,
             openCloseMenu: this.openCloseMenu.bind(this),
             showSearch: this.showSearch.bind(this),
+            hideSearch: this.hideSearch.bind(this),
             open: this.state.menuOpening ? "open" : "",
             searchState
         });
