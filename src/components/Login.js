@@ -45,7 +45,7 @@ export default function Login(props = {}) {
                 '</div>' +
                 '<div>' +
                     '<button type="submit" ' +
-                        'class="btn-sbumit" ' +
+                        'class="btn btn-sbumit" ' +
                         'data-on-click="{{doLogin}}">Login</button>' +
                 '</div>' +
             '</form>' +

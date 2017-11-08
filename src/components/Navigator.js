@@ -94,7 +94,7 @@ export default function Navigator(props = {}) {
                         '<aside class="search-content">' +
                             '<form>' +
                                 '<div class="form-group">' +
-                                    '<button class="input-addon">' +
+                                    '<button class="btn input-addon">' +
                                         '<svg class="icon" width="1.1875rem" height="1.1875rem">' +
                                             '<use href="' + svg + '#pd-magnifier" />' +
                                         '</svg>' +
@@ -102,7 +102,7 @@ export default function Navigator(props = {}) {
                                     '<input type="text" placeholder="Quick Search" />' +
                                 '</div>' +
                             '</form>' +
-                            '<button class="search-close-btn btn-icon" data-on-click="{{hideSearch}}">' +
+                            '<button class="btn search-close-btn btn-icon" data-on-click="{{hideSearch}}">' +
                                 '<span class="arrow"><span></span><span></span></span>' +
                             '</button>' +
                         '</aside>' +

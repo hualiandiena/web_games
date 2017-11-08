@@ -6,7 +6,7 @@
     --cube-half-size: 1.5rem;
 }
 
-@media (min-width: 640px) {
+/*@media (min-width: 640px) {
     :root {
         font-size: 28px;
     }
@@ -15,10 +15,11 @@
     :root {
         font-size: 16px;
     }
-}
+}*/
 
 html {
     font-family: sans-serif;
+    font-size: 16px;
 }
 
 body {
@@ -80,7 +81,7 @@ body {
 }
 
 /*global widget*/
-button {
+.btn {
     width: var(--primary-width);
     padding: 0.3125rem 0.125rem;
     font-size: 1rem;
@@ -89,7 +90,7 @@ button {
     cursor: pointer;
 }
 
-button:active {
+.btn:active {
     margin-top: 0.25rem;
 }
 

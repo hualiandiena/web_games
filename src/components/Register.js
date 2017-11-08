@@ -61,7 +61,7 @@ export default function Register(props = {}) {
                         '<input type="number" name="phone" placeholder="PhoneNumber" />' +
                     '</div>' +
                     '<div>' +
-                        '<button type="submit" class="btn-sbumit" data-on-click="{{doSignUp}}">' +
+                        '<button type="submit" class="btn btn-sbumit" data-on-click="{{doSignUp}}">' +
                             '<span>Create Account</span>' +
                         '</button>' +
                     '</div>' +
