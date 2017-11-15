@@ -1,4 +1,5 @@
 import { Widget, createElement } from "../widgets.js";
+import { DefaultRoute, Route } from "../routers/router.js";
 
 import Welcome from "./Welcome.js";
 import Navigator from "./Navigator.js";
@@ -48,10 +49,28 @@ export default function App(props = {}) {
 
         var navigator = app.state.logined  ? Navigator() : null;
 
+        var homeRoute = DefaultRoute({
+            path: "/home", 
+            component: "Overview",
+            resolve: function() {
+                return import("./Overview.js");
+            } 
+        });
+        var userRoute = Route({
+            path: "/user", 
+            component: "User", 
+            resolve: function(){
+                return import("./User.js");
+            }
+        });
+
+        // welcome应该也使用route加载
         var template = (app.state.logined ? 
-                        '<div>' +
+                        '<div class="app-wrap">' +
                             '{{navigator}}' +
-                            '<main>' +
+                            '<main class="app-content">' +
+                                '{{homeRoute}}' +
+                                // '{{userRoute}}' +
                             '</main>' +
                         '</div>' : 
                         '<div>{{welcome}}</div>');
@@ -59,7 +78,8 @@ export default function App(props = {}) {
         return createElement(template, {
             welcome,
             navigator,
-            avatar: this.state.avatar
+            avatar: this.state.avatar,
+            homeRoute
         });
     };
 

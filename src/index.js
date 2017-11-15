@@ -1,4 +1,5 @@
 import App from "./components/App.js";
+import Router from "./routers/router.js";
 
 import "./resource/css/layout.css";
 import "./resource/css/animations.css";
@@ -11,4 +12,5 @@ import "./resource/css/animations.css";
 
 var rootEle = document.getElementById("root");
 
+Router();
 App().mount(rootEle);

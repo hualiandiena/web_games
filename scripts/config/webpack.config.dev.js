@@ -16,7 +16,7 @@ module.exports = {
 	output: {
 		path: paths.appBuild,
 		filename: "static/js/bundle.js",
-		chunkFilename: "static/js/bundle.[hash:8].js",
+		chunkFilename: "static/js/[name].[hash:8].js",
 		publicPath: "/"
 	},
 	resolve: {

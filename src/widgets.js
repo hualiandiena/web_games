@@ -8,6 +8,8 @@
 //         2.可增加{{::}}，表示一次变动性；
 //         3.可增加一个方法，判断是否更新组件
 //         4.class应允许object
+//         5.组件可作为定义元素，属性即参数
+//         6.允许组件变量直接作为子节点，少一层包裹层
 
 const SING_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/;
 // const TAG_NAME_REGEXP = /<([\w:-]+)/;
@@ -73,6 +75,7 @@ function parseHTML(html) {
 export var Widget = {
     _curTemplate: "",
     _element: null,
+    _relativeParent: {node: null, index: -1},
     _domLisenters: {},
     _stateCache: [],
     _updateDOM: function(nEle = this.render()) {
@@ -190,8 +193,8 @@ export var Widget = {
                                 if (curVal) {
                                     if (config[name]) {
                                         nVal = oVal.replace(curVal, config[name]);
-                                    }else {
-                                        reg = new RegExp("\\s*" + curVal.replace(/\-/g, "\-"));
+                                    } else {
+                                        reg = new RegExp("\\s*" + curVal.replace(/-/g, "-"));
                                         nVal = oVal.replace(reg ,"");
                                     }
                                     
@@ -227,10 +230,21 @@ export var Widget = {
         var nElement = parseHTML(nTemplate)[0];
         var oElement = parseHTML(oTemplate)[0];
 
+        // 这里key的计算存在问题。
         function diffTemplate(nElement, oElement, node, key) {
             var configVar, parentNode;
 
-            if (nElement.nodeType !== oElement.nodeType ||
+            // if (!oElement && !node) {
+            //     return true;
+            // }
+
+            if (!nElement && oElement) {
+                node.removeChild(node.childNodes[key]);
+                return true;
+            }
+
+            if ((nElement && !oElement) ||
+                nElement.nodeType !== oElement.nodeType ||
                 (nElement.nodeType === 3 && nElement.nodeValue !== oElement.nodeValue) ||
                 (nElement.nodeType === 1 && nElement.nodeName !== oElement.nodeName) ||
                 nElement.childNodes.length !== oElement.childNodes.length
@@ -244,15 +258,14 @@ export var Widget = {
                             node.parentNode.inserBefore(parentNode.childNodes[key + index], node);
                         }
                         node.parentNode.removeChild(node);
-                    }else {
+                    } else {
                         node.parentNode.replaceChild(parentNode.childNodes[key], node);
                     }
-                }else {
+                } else {
                     this._getChange([nElement], config);
                     node.parentNode.replaceChild(nElement, node);
                 }
                 
-
                 return true;
             }
             return false;
@@ -278,7 +291,12 @@ export var Widget = {
         }
 
         //根节点替换特殊处理
-        if (diffTemplate.bind(this)(nElement, oElement, curNode)) {
+        if (!oElement && !curNode) {
+            this._getChange([nElement], config);
+            let parentNode = this._relativeParent.node;
+            parentNode.insertBefore(nElement, parentNode.childNodes[this._relativeParent.index]);
+            this._element = nElement;
+        } else if (diffTemplate.bind(this)(nElement, oElement, curNode)) {
             this._element = nElement;
         } else {
             replaceTemplateNode.call(this, nElement, oElement, curNode);
@@ -290,7 +308,7 @@ export var Widget = {
         var dealFn = this._addVaribleListener.bind(this);
 
         function getDomChange(nodes, eleConfig, scope) {
-            nodes.forEach((node, key) => {
+            Array.prototype.forEach.call(nodes, (node, key) => {
                 if (node.nodeType === 1) {
                     let nAttrs = node.attributes;
                     Array.prototype.forEach.call(nAttrs, (nAttr) => {
@@ -432,6 +450,7 @@ export var Widget = {
         if (ele && (ele.nodeType === 9 || ele.nodeType === 1)) {
             var nodes = [];
 
+            this._relativeParent = {node: ele, index};
             var { template:html, config } = this.render();
             if (html) {
                 this._domLisenters = {};
@@ -443,7 +462,7 @@ export var Widget = {
                 this._element = [...nodes][0];
 
                 // mount dom
-                if (index && ele.children.length && 
+                if (index !== undefined && index > -1 && ele.children.length && 
                         index !== ele.children.length) {
                     nodes.forEach((node) => {
                         var referenceNode = ele.childNodes[index];
