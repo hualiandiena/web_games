@@ -1,3 +1,6 @@
+// 路由存在问题，html5模式时,通过URL定位路由时将会重载页面
+// 如何传参？
+
 // some utils
 function getTemplate(url) {
     var htmlPromise = new Promise(function(resolve, reject){
@@ -77,6 +80,7 @@ function createRouter(registerRoutes) {
     // private variables
     const routes = {};
     const listeners = {
+        "changeRoute": [],
         "loadStart": [],
         "loadSucceed": [],
         "loadFailed": []
@@ -109,6 +113,7 @@ function createRouter(registerRoutes) {
     };
 
     var handleChange = function(hash) {
+        broadcast("changeRoute", hash);
         if (hash in routes) {
             broadcast("loadStart", hash);
             let hashRoute = routes[hash];

@@ -1,11 +1,11 @@
 // 尚未建立连接，直接引用github上的另一个项目，目前就使用本地的方式
+// bug: default route must be defined after other routes
 
 import createRouter from "../utils/browser.js";
 import { Widget, createElement } from "../widgets.js";
 
 var router = null;
 var config = {};
-var runFlag = false;
 
 export default function Router(props = {}) {
     config = Object.assign({}, {
@@ -33,6 +33,22 @@ export function Route(props = {}) {
         render: false
     };
 
+    route.leaveRouteHandler = function(p) {
+        if (p !== path && this.state.render) {
+            this.setState({
+                render: false
+            });
+        }
+    };
+
+    route.render = function() {
+        var widget = this.state.render ? component(props) : null;
+        var template = this.state.render ? '<div>{{widget}}</div>' : '';
+        return createElement(template, {
+            widget
+        });
+    };
+
     router.when(path, () => {
         if (!route.state.loader) {
             if (resolve && typeof resolve !== "function") {
@@ -53,7 +69,6 @@ export function Route(props = {}) {
             } else {
                 // component = Function(componentName + "()");
             }
-            
         } else if (!route.state.render) {
             route.setState({
                 render: true
@@ -61,40 +76,49 @@ export function Route(props = {}) {
         }
     });
 
-    route.render = function() {
-        var widget = this.state.render ? component(props) : null;
-        var template = this.state.render ? '<div>{{widget}}</div>' : '';
-        return createElement(template, {
-            widget
-        });
-    };
+    router.on("changeRoute", route.leaveRouteHandler.bind(route));
 
     return route;
 }
 
 export function DefaultRoute(props = {}) {
     var route = Route(props);
+    route.name = "defaultRoute";
     router.otherwise(props.path);
     router.run();
     return route;
 }
 
 export function Link(props) {
-    var template;
+    var template, clickFn;
 
     var { path, child } = props;
 
+    var attrs = "";
+    for (let prop in props) {
+        if (prop === "data-on-click") {
+            clickFn = props["data-on-click"];
+        } else if (props.hasOwnProperty() && prop !== "path" && prop !== "child") {
+            attrs = attrs + prop + props[prop] + " ";
+        }
+    }
+
     var changeRoute = function() {
         router.routeTo(path);
+        if (clickFn) {
+            clickFn();
+        }
     };
 
     if (config.html5mode) {
-        template = '<a data-on-click="{{changeRoute}}">' + child + '</a>';
+        template = '<a ' + attrs + 'data-on-click="{{changeRoute}}">' + child + '</a>';
     } else {
-        template = '<a href="#' + path + '">' + child + '</a>';
+        template = '<a ' + clickFn ? 'data-on-click="{{' + clickFn + "}}" : '' +
+            ' href="#' + path + '">' + child + '</a>';
     }
 
     return createElement(template, {
-        changeRoute
+        changeRoute,
+        clickFn
     });
 }

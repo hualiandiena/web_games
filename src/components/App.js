@@ -9,7 +9,39 @@ import "./App.css";
 // import svg from "../resource/symbol-defs.svg";
 
 export default function App(props = {}) {
+    // private variables
+    const userRoute = Route({
+        path: "/user", 
+        component: "User", 
+        resolve: function(){
+            return import("./User.js");
+        }
+    });
+    const entertainRoute = Route({
+        path: "/entertain",
+        component: "Entertainment",
+        resolve: function() {
+            return import("./Entertainment.js");
+        }
+    });
+    const communityRoute = Route({
+        path: "/community",
+        component: "Community",
+        resolve: function() {
+            return import("./Community.js");
+        }
+    });
+    const homeRoute = DefaultRoute({
+        path: "/home", 
+        component: "Overview",
+        resolve: function() {
+            return import("./Overview.js");
+        } 
+    });
+
     var app = Object.create(Widget);
+
+    app.name = "app";
 
     app.state = {
         logined: true,
@@ -49,28 +81,15 @@ export default function App(props = {}) {
 
         var navigator = app.state.logined  ? Navigator() : null;
 
-        var homeRoute = DefaultRoute({
-            path: "/home", 
-            component: "Overview",
-            resolve: function() {
-                return import("./Overview.js");
-            } 
-        });
-        var userRoute = Route({
-            path: "/user", 
-            component: "User", 
-            resolve: function(){
-                return import("./User.js");
-            }
-        });
-
         // welcome应该也使用route加载
         var template = (app.state.logined ? 
                         '<div class="app-wrap">' +
                             '{{navigator}}' +
                             '<main class="app-content">' +
                                 '{{homeRoute}}' +
-                                // '{{userRoute}}' +
+                                '{{userRoute}}' +
+                                '{{entertainRoute}}' +
+                                '{{communityRoute}}' +
                             '</main>' +
                         '</div>' : 
                         '<div>{{welcome}}</div>');
@@ -79,7 +98,10 @@ export default function App(props = {}) {
             welcome,
             navigator,
             avatar: this.state.avatar,
-            homeRoute
+            homeRoute,
+            userRoute,
+            entertainRoute,
+            communityRoute
         });
     };
 

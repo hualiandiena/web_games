@@ -1,4 +1,5 @@
 import { Widget, createElement } from "../widgets.js";
+import { Link } from "../routers/router.js";
 
 import "./Navigator.css";
 import svg from "../resource/symbol-defs.svg";
@@ -69,6 +70,23 @@ export default function Navigator(props = {}) {
 
             // no defaults
         }
+
+        // links
+        var homeLink = Link({
+            child: '<span>HOME</span>',
+            path: "/home",
+            "data-on-click": this.openCloseMenu.bind(this)
+        });
+        var entertainLink = Link({
+            child: '<spa>ENTERTAINMENT</span>',
+            path: "/entertain",
+            "data-on-click": this.openCloseMenu.bind(this)
+        });
+        var communityLink = Link({
+            child: '<span>COMMUNITY</span>',
+            path: "/community",
+            "data-on-click": this.openCloseMenu.bind(this)
+        });
         
         var template = '<nav class="app-nav {{open}} {{searchState}}">' +
             '<ul class="flex-between">' +
@@ -80,9 +98,9 @@ export default function Navigator(props = {}) {
                     '<div class="menu-wrap">' +
                         '<ul class="menu-content">' +
                             // '<label></label>' +
-                            '<li class="menu-item"><a>ENTERTAINMENT</a></li>' +
-                            '<li class="menu-item"><a>COMMUNITY</a></li>' +
-                            '<li class="menu-item"><a>待定</a></li>' +
+                            '<li class="menu-item">{{homeLink}}</li>' +
+                            '<li class="menu-item">{{entertainLink}}</li>' +
+                            '<li class="menu-item">{{communityLink}}</li>' +
                             '<li class="menu-item"><a>待定2</a></li>' +
                             '<li class="menu-item"><a data-on-click="{{showSearch}}">' +
                                 '<svg class="icon" width="1.25rem" height="1.25rem">' +
@@ -117,6 +135,16 @@ export default function Navigator(props = {}) {
                     '<a class="avatar">' +
                         '<img src="{{avatar}}" width="20" height="20" />' +
                         // '<span class="dropdown-caret"></span>' +
+                        '<aside>' +
+                            '<header></header>' +
+                            '<ul>' +
+                                '<li></li>' +
+                                '<li></li>' +
+                                '<li></li>' +
+                            '</ul>' +
+                            '<footer>' +
+                            '</footer>' +
+                        '<aside>' +
                     '</a>' +
                 '</li>'+
             '</ul>' +
@@ -128,7 +156,10 @@ export default function Navigator(props = {}) {
             showSearch: this.showSearch.bind(this),
             hideSearch: this.hideSearch.bind(this),
             open: this.state.menuOpening ? "open" : "",
-            searchState
+            searchState,
+            homeLink,
+            entertainLink,
+            communityLink
         });
     };
 

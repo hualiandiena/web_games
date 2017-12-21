@@ -1,9 +1,9 @@
 import { createElement } from "../widgets.js";
 
-export default function Overview() {
+export default function Entertainment() {
     var template = '<div>' + 
             '<ul>' + 
-                '<li>sss</li>' +
+                '<li>Entertainment</li>' +
             '</ul>' +
         '</div>';
     return createElement(template, {});

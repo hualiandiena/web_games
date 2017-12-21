@@ -3,6 +3,10 @@
 ** widgets.js: a small framework that can help create a Component
 */
 
+// 规范优化点：1.let在块头部声明，需要作用域的地方使用{}包裹
+//             2.const的慎用，若将对象或数组作为常量赋值，
+//              意味着在常量的词法作用域消失以前是不能被回收的
+//             3. 函数声明具有块作用域
 
 // 优化点：1.删除dom节点时，移除相关的监听;
 //         2.可增加{{::}}，表示一次变动性；
@@ -10,6 +14,8 @@
 //         4.class应允许object
 //         5.组件可作为定义元素，属性即参数
 //         6.允许组件变量直接作为子节点，少一层包裹层
+//         7.更新组件时，应当实时更新子组件的挂载点，保证子组件的挂载点的正确性。
+//         8.当子组件为对应值为空时，应当移除该组件。
 
 const SING_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/;
 // const TAG_NAME_REGEXP = /<([\w:-]+)/;
@@ -91,9 +97,9 @@ export var Widget = {
                 }
 
                 // 未比较模板，模板的差异是直接dom元素替换
-                if (typeof config[name] === "object") {
+                if (config[name] && typeof config[name] === "object") {
                     let childVar = config[name];
-                    if (config[name].isPrototypeOf(Widget)) {
+                    if (childVar.isPrototypeOf(Widget)) {
                         console.log("等待处理");
                         continue;
                     }
@@ -166,9 +172,12 @@ export var Widget = {
                 if (config[name] === null && scope[name]) {
                     // remove node
                     scope[name].lisenters.forEach(lisenter => {
-                        lisenter.node.removeChild(scope[name].child.node);
+                        if (scope[name].child.node.parentNode === lisenter.node) {
+                            lisenter.node.removeChild(scope[name].child.node);
+                        }
                     });
                     delete scope[name];
+                    continue;
                 }
 
                 let curVal = scope[name].currentVal;
@@ -219,7 +228,7 @@ export var Widget = {
             });
             this._curTemplate = nEle.template;
         }
-        cleanDirty(nEle.config, this._domLisenters);
+        cleanDirty.bind(this)(nEle.config, this._domLisenters);
     },
     _updateTemplate: function(nInfo, oInfo) {
         console.log("update template");
@@ -296,7 +305,7 @@ export var Widget = {
             let parentNode = this._relativeParent.node;
             parentNode.insertBefore(nElement, parentNode.childNodes[this._relativeParent.index]);
             this._element = nElement;
-        } else if (diffTemplate.bind(this)(nElement, oElement, curNode)) {
+        } else if (diffTemplate.bind(this)(nElement, oElement, curNode, 0)) {
             this._element = nElement;
         } else {
             replaceTemplateNode.call(this, nElement, oElement, curNode);
@@ -331,50 +340,56 @@ export var Widget = {
 
                     getDomChange(node.childNodes, eleConfig, scope);
                 } else if (node.nodeType === 3) {
-                    let matches = TEMPLATE_NODE_VAR.exec(node.nodeValue);
-                    if (!matches) {
-                        return;
-                    }
-                    let name = matches[1];
-                    let eleVariable = eleConfig[name];
-                    if (typeof eleVariable === "object") {
-                        let parentNode = node.parentNode;
-                        let htmlStr = parentNode.innerHTML;
+                    const TEMP_REG = /\{\{([^(?:{{)(?:}})]+)\}\}/g;
+                    const nodeValue = node.nodeValue;
+                    const parentNode = node.parentNode;
+                    var matches = TEMP_REG.exec(nodeValue);
+                    while (matches) {
+                        let name = matches[1];
+                        let eleVariable = eleConfig[name];
+                        if (typeof eleVariable === "object") {
+                            let htmlStr = parentNode.innerHTML;
 
-                        if (Widget.isPrototypeOf(eleVariable)) {
-                            parentNode.removeChild(node);
-                            eleVariable.mount(parentNode, key);
-                            return ;
-                        }
+                            if (Widget.isPrototypeOf(eleVariable)) {
+                                if (node.parentNode === parentNode) {
+                                    parentNode.removeChild(node);
+                                }
+                                eleVariable.mount(parentNode, key);
 
-                        let variableNodes = [];
-                        if (Array.isArray(eleVariable)) {
-                            let replaceText = eleVariable.reduce((text, item) => {
-                                return text + item.template;
-                            }, "");
-                            parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", replaceText);
+                                matches = TEMP_REG.exec(nodeValue);
+                                continue ;
+                            }
 
-                            variableNodes = Array.prototype.slice.call(parentNode.childNodes, key , key + eleVariable.length);
-                            dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
+                            let variableNodes = [];
+                            if (Array.isArray(eleVariable)) {
+                                let replaceText = eleVariable.reduce((text, item) => {
+                                    return text + item.template;
+                                }, "");
+                                parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", replaceText);
 
-                            for (let index = 0, len = eleVariable.length; index < len; index++) {
-                                let childKey = eleVariable[index].config.key;
-                                let tmpScope = scope ? scope + "." + name + childKey : name + "-" + childKey;
-                                getDomChange([parentNode.childNodes[key + index]], 
-                                    eleVariable[index].config, tmpScope);
+                                variableNodes = Array.prototype.slice.call(parentNode.childNodes, key , key + eleVariable.length);
+                                dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
+
+                                for (let index = 0, len = eleVariable.length; index < len; index++) {
+                                    let childKey = eleVariable[index].config.key;
+                                    let tmpScope = scope ? scope + "." + name + childKey : name + "-" + childKey;
+                                    getDomChange([parentNode.childNodes[key + index]], 
+                                        eleVariable[index].config, tmpScope);
+                                }
+                            } else {
+                                parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", eleVariable.template);
+
+                                variableNodes = [parentNode.childNodes[key]];
+                                dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
+
+                                let tmpScope = scope ? scope + "." + name : name;
+                                getDomChange([parentNode.childNodes[key]], eleVariable.config, tmpScope);
                             }
                         } else {
-                            parentNode.innerHTML = htmlStr.replace("{{" + name + "}}", eleVariable.template);
-
-                            variableNodes = [parentNode.childNodes[key]];
-                            dealFn(scope, name, eleVariable, parentNode, "PARENT_CHILD", variableNodes);
-
-                            let tmpScope = scope ? scope + "." + name : name;
-                            getDomChange([parentNode.childNodes[key]], eleVariable.config, tmpScope);
+                            dealFn(scope, name, eleVariable, node);
+                            node.nodeValue = eleVariable;
                         }
-                    } else {
-                        dealFn(scope, name, eleVariable, node);
-                        node.nodeValue = eleVariable;
+                        matches = TEMP_REG.exec(nodeValue);
                     }
                 }
             });
